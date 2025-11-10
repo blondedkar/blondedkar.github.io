@@ -10,7 +10,7 @@
   body {
     margin: 0;
     height: 100vh;
-    background: linear-gradient(120deg, seagreen, skyblue);
+    background: linear-gradient(120deg, seagreen, rgb(98, 243, 243));
     background-size: 200% 200%;
     animation: gradientShift 8s ease infinite;
     display: flex;
@@ -20,13 +20,13 @@
     font-family:'Segoe UI', Arial, Helvetica, sans-serif;
     color: white;
     text-align: center;
+    text-shadow: 3cm;
     text-shadow: beige;
   }
 
-
   @keyframes gradientShift {
     0% { background-position: 0% 50%; }
-    0% { background-position: 100% 50%; }
+    50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
   }
 
@@ -45,6 +45,6 @@
 </head>
 <body>
   <h1>Hi!</h1>
-  <p>I am currently under construction! Please check in at a later time - Pedro</p>
+  <p>Site currently under construction! Please check in at a later time - Pedro</p>
 </body>
 </html>
