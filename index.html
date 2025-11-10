@@ -4,6 +4,44 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pedro's site</title>
+
+<style>
+
+  body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(120deg, seagreen, skyblue);
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family:'Segoe UI', Arial, Helvetica, sans-serif;
+    color: white;
+    text-align: center;
+    text-shadow: beige;
+  }
+
+
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  h1 {
+    font-weight: bolder;
+    font-size: 3rem;
+    margin: 0;
+  }
+
+  p {
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.9);
+  }
+</style>
+
 </head>
 <body>
   <h1>Hi!</h1>
