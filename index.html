@@ -1,50 +1,415 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pedro's site</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>blond_os</title>
 
 <style>
+/* =====================
+   THEME VARIABLES
+===================== */
+:root{
+  --bg:#0b0f14;
+  --panel:#0f1622;
+  --border:rgba(255,255,255,0.12);
 
-  body {
-    margin: 0;
-    height: 100vh;
-    background: linear-gradient(120deg, seagreen, rgb(98, 243, 243));
-    background-size: 200% 200%;
-    animation: gradientShift 8s ease infinite;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-family:'Segoe UI', Arial, Helvetica, sans-serif;
-    color: white;
-    text-align: center;
-    text-shadow: 3cm;
-    text-shadow: beige;
-  }
+  --term-text:#e8fdf6;
+  --term-muted:rgba(255,255,255,0.6);
+  --accent:#66f2d5;
 
-  @keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
+  --ui-text:#f5f7fa;
+  --ui-muted:#cfd5dd;
 
-  h1 {
-    font-weight: bolder;
-    font-size: 3rem;
-    margin: 0;
-  }
+  --radius:18px;
+}
 
-  p {
-    font-size: 1.2rem;
-    color: rgba(255,255,255,0.9);
-  }
+/* Light theme */
+:root.light{
+  --bg:#f4f6f8;
+  --panel:#ffffff;
+  --border:rgba(0,0,0,0.12);
+
+  --term-text:#0b0f14;
+  --term-muted:rgba(0,0,0,0.55);
+  --accent:#0aa1a1;
+
+  --ui-text:#0b0f14;
+  --ui-muted:#444;
+}
+
+/* =====================
+   BASE
+===================== */
+*{box-sizing:border-box}
+html,body{
+  height:100%;
+  margin:0;
+  background:var(--bg);
+  transition:background 400ms ease;
+}
+
+body{
+  display:grid;
+  place-items:center;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  overflow:hidden;
+}
+
+.backdrop{
+  position:fixed;
+  inset:-30%;
+  background:
+    radial-gradient(600px 400px at 20% 20%, rgba(102,242,213,0.18), transparent 60%),
+    radial-gradient(500px 300px at 80% 40%, rgba(140,180,255,0.14), transparent 60%),
+    radial-gradient(400px 300px at 50% 80%, rgba(180,120,255,0.12), transparent 60%);
+  filter:blur(60px);
+  opacity:0.9;
+  animation:ripple 18s ease-in-out infinite;
+  will-change:transform;
+  pointer-events:none;
+}
+
+@keyframes ripple{
+  0%{transform:translate3d(-1.5%,-1%,0) scale(1.02)}
+  50%{transform:translate3d(1.5%,1%,0) scale(1.05)}
+  100%{transform:translate3d(-1.5%,-1%,0) scale(1.02)}
+}
+
+.shell{
+  width:min(1100px,calc(100vw - 32px));
+  height:min(720px,calc(100vh - 32px));
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  display:grid;
+  grid-template-rows:auto auto 1fr auto;
+  box-shadow:0 30px 80px rgba(0,0,0,0.45);
+  overflow:hidden;
+}
+
+.titlebar{
+  padding:14px 18px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.dots{display:flex;gap:8px}
+.dot{width:10px;height:10px;border-radius:999px}
+.red{background:#ff5f57}
+.yellow{background:#febc2e}
+.green{background:#28c840}
+.title{font-size:13px;color:var(--term-muted)}
+
+.routebar{
+  padding:10px 16px;
+  border-bottom:1px solid var(--border);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.route{color:var(--accent)}
+.cmd-btn{
+  padding:4px 8px;
+  border-radius:6px;
+  cursor:pointer;
+}
+.cmd-btn:hover{
+  background:#fff;
+  color:#000;
+}
+.cmd-btn.hidden{display:none}
+
+.content{
+  padding:40px;
+  overflow:auto;
+  color:var(--ui-text);
+}
+h1{font-size:2.4rem;margin-bottom:16px}
+p{color:var(--ui-muted);max-width:720px}
+
+.projects{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
+  margin-top:24px;
+}
+.card{
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  background:rgba(255,255,255,0.02);
+  transition:transform 160ms ease;
+}
+.card:hover{transform:translateY(-4px)}
+.card img{width:100%;height:160px;object-fit:cover}
+.card-body{padding:16px}
+
+.card-actions{
+  margin-top:12px;
+  display:flex;
+  gap:10px;
+}
+
+.card-link{
+  font-size:0.85rem;
+  padding:6px 12px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  color:var(--accent);
+  text-decoration:none;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  transition:background 140ms ease, transform 140ms ease;
+}
+
+.card-link:hover{
+  background:var(--accent);
+  color:#000;
+  transform:translateY(-1px);
+}
+
+.promptbar{
+  padding:12px 16px;
+  border-top:1px solid var(--border);
+  display:flex;
+  gap:10px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+.prompt{color:var(--accent)}
+input{
+  flex:1;
+  background:none;
+  border:none;
+  outline:none;
+  color:var(--term-text);
+}
+
+
+.boot{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.75);
+  display:grid;
+  place-items:center;
+  z-index:10;
+  transition:opacity 400ms ease;
+}
+.boot.hidden{opacity:0;pointer-events:none}
+
+.bootcard{
+  padding:28px 36px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:var(--panel);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color:var(--term-muted);
+}
+.caret{
+  display:inline-block;
+  width:8px;
+  height:18px;
+  background:var(--accent);
+  margin-left:6px;
+  animation:blink 1s steps(2,end) infinite;
+}
+@keyframes blink{50%{opacity:0}}
 </style>
-
 </head>
+
 <body>
-  <h1>Hi!</h1>
-  <p>Site currently under construction! Please check in at a later time - Pedro</p>
+
+<div class="backdrop"></div>
+
+<div class="boot" id="boot">
+  <div class="bootcard">
+    booting blond_os<span class="caret"></span>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="titlebar">
+    <div class="dots">
+      <span class="dot red"></span>
+      <span class="dot yellow"></span>
+      <span class="dot green"></span>
+    </div>
+    <div class="title">blond_os</div>
+  </div>
+
+  <div class="routebar">
+    <div class="route" id="route">&gt; home</div>
+    <div class="cmd-btn" id="cmdBtn" onclick="showCmd()">cmd</div>
+  </div>
+
+  <div class="content" id="content"></div>
+
+  <div class="promptbar">
+    <div class="prompt">&gt;</div>
+    <input id="input" placeholder="type a command" />
+  </div>
+</div>
+
+<script>
+const content=document.getElementById("content");
+const route=document.getElementById("route");
+const input=document.getElementById("input");
+const cmdBtn=document.getElementById("cmdBtn");
+
+function setRoute(name){
+  route.textContent="> "+name;
+  cmdBtn.classList.toggle("hidden",name==="cmd");
+}
+
+function showCmd(){
+  setRoute("cmd");
+  content.innerHTML=`
+    <h1>Commands</h1>
+    <p>
+      <span class="cmd-btn" onclick="nav('projects')">projects</span> ·
+      <span class="cmd-btn" onclick="nav('about')">about</span> ·
+      <span class="cmd-btn" onclick="nav('contact')">contact</span> ·
+      <span class="cmd-btn" onclick="nav('settings')">settings</span>
+    </p>
+  `;
+}
+
+function nav(page){
+  setRoute(page);
+  if(page==="projects") renderProjects();
+  if(page==="about") renderAbout();
+  if(page==="contact") renderContact();
+  if(page==="settings") renderSettings();
+}
+
+function renderProjects(){
+  content.innerHTML=`
+    <h1>Projects</h1>
+    <div class="projects">
+
+      <div class="card">
+        <img src="https://tr.rbxcdn.com/180DAY-353c5959d8784f2ddcca8329d15c1c0d/768/432/Image/Webp/noFilter">
+        <div class="card-body">
+          <h3>Hoopz Affinity</h3>
+          <p>Live-service Roblox game (200M+ plays).</p>
+          <div class="card-actions">
+            <a class="card-link"
+               href="https://www.roblox.com/games/6229116934/Hoopz"
+               target="_blank">
+               Play →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://i.ibb.co/cKJN2vFQ/0ed08ee39bd494df89f377f0e54aa61e.jpg">
+        <div class="card-body">
+          <h3>Rasterization Framework</h3>
+          <p>CPU-based rendering pipeline in Roblox Studio.</p>
+          <div class="card-actions">
+            <a class="card-link"
+               href="https://devforum.roblox.com/t/rasterized-drawing-game/3807126"
+               target="_blank">
+               DevForum →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://i.ibb.co/Y47y2h40/Screenshot-2026-01-07-175210.png">
+        <div class="card-body">
+          <h3>Top-Down Map System</h3>
+          <p>1:1 world-to-pixel mapping without orthographic projection.</p>
+          <div class="card-actions">
+            <a class="card-link"
+               href="https://devforum.roblox.com/t/creating-a-fullscale-interactive-map-ui-for-your-open-world-games/4081608"
+               target="_blank">
+               DevForum →
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+
+function renderAbout(){
+  content.innerHTML=`
+    <h1>About</h1>
+    <p>
+      Hey! my name is Pedro, I'm a programmer from the U.S. specializing in game development using scripting languages like Lua and JavaScript.
+    </p>
+  `;
+}
+
+function renderContact(){
+  content.innerHTML=`
+    <h1>Contact</h1>
+    <p>Find me here!</p>
+
+    <div class="card-actions">
+      <a class="card-link"
+         href="mailto:pedroramosm22@gmail.com">
+         Email →
+      </a>
+
+      <a class="card-link"
+         href="https://github.com/blondedkar"
+         target="_blank">
+         GitHub →
+      </a>
+
+      <a class="card-link"
+         href="https://discord.com/users/242280553666052096"
+         target="_blank">
+         Discord →
+      </a>
+      
+    </div>
+  `;
+}
+
+function renderSettings(){
+  content.innerHTML=`
+    <h1>Settings</h1>
+    <p>
+      <span class="cmd-btn" onclick="fadeTheme('dark')">Dark Mode</span>
+      <span class="cmd-btn" onclick="fadeTheme('light')">Light Mode</span>
+    </p>
+  `;
+}
+
+function fadeTheme(mode){
+  document.body.style.opacity=0;
+  setTimeout(()=>{
+    document.documentElement.classList.toggle("light",mode==="light");
+    localStorage.setItem("theme",mode);
+    document.body.style.opacity=1;
+  },200);
+}
+
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    const v=input.value.trim();
+    input.value="";
+    if(v==="cmd") showCmd();
+    else nav(v);
+  }
+});
+
+/* Init */
+const saved=localStorage.getItem("theme");
+if(saved) document.documentElement.classList.toggle("light",saved==="light");
+
+setTimeout(()=>{
+  document.getElementById("boot").classList.add("hidden");
+  showCmd();
+},1200);
+</script>
+
 </body>
 </html>
