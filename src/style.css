@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.logo-text {
+  font-family: 'Inconsolata', monospace;
+  font-size: 48px;
+  font-weight: bold;
+  color: black;
+  letter-spacing: 5px;
+}
+
+.logo-text-thick {
+  font-weight: 1000;
+  font-size: 32px;
+  letter-spacing: 1px;
+  color: #c5efe4;
+  vertical-align: super;
+}
+
+.logo-text-animated {
+  font-size: 48px;
+  font-weight: bold;
+  display: inline-block;
+
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    transparent 40%,
+    #6eabb1 50%,
+    transparent 60%,
+    transparent 100%
+  );
+
+  background-size: 200% 100%;
+  background-position: -200% 0;
+}
+
+a span {
+  position: relative;
+  display: inline-block;
+}
