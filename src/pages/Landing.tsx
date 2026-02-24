@@ -1,67 +1,75 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import "../style.css"
+import SplitText from "gsap/SplitText";
+import { useNavigate } from "react-router-dom";
+import "../style.css";
 
-function MainWebsite() { 
-  return (
-    <div className="w-screen h-screen bg-[#6eabb1] flex flex-col items-center justify-center">
-      <h2 className="text-3xl text-black">Main Website</h2>
-     {/* my take on the lando norris text effect thingamabob go visit his site its dope */}
-      <div className="text"> 
-        <a href="/">
-          {/* blonde */}
-          <span className="logo-text">
-            <span>b</span>
-            <span>l</span>
-            <span>o</span>
-            <span>n</span>
-            <span>d</span>
-            <span>e</span>
-            <span>&nbsp;</span>
-          </span>
-
-          {/* Interactive */}
-          <span className="logo-text logo-text-thick">
-            <span>I</span>
-            <span>n</span>
-            <span>t</span>
-            <span>e</span>
-            <span>r</span>
-            <span>a</span>
-            <span>c</span>
-            <span>t</span>
-            <span>i</span>
-            <span>v</span>
-            <span>e</span>
-          </span>
-        </a>
-      </div>
-    </div>
-  );
-}
+gsap.registerPlugin(SplitText);
 
 export default function Landing() {
+  const navigate = useNavigate();
+
   const LandingRef = useRef<HTMLDivElement>(null);
-  const LogoWrapperRef = useRef<HTMLDivElement>(null);
   const TriangleRef = useRef<SVGPathElement>(null);
   const CircleRef = useRef<SVGCircleElement>(null);
-  const MaskRef = useRef<HTMLDivElement>(null);
+  const LogoContainerRef = useRef<HTMLDivElement>(null);
+  const LogoGroupRef = useRef<SVGGElement>(null);
 
-  const [ShowMain, setShowMain] = useState(false);
+  const BlondeRef = useRef<HTMLSpanElement>(null);
+  const InteractiveRef = useRef<HTMLSpanElement>(null);
+
+  const PlayTransition = async () => {
+    return new Promise<void>((resolve) => {
+      if (!TriangleRef.current || !CircleRef.current) return;
+
+      const tl = gsap.timeline({
+        onComplete: () => resolve()
+      });
+
+      // scale container from center
+      tl.to(LogoContainerRef.current, {
+        scale: 12,
+        transformOrigin: "center center",
+        duration: 0.7,
+        ease: "power4.inOut"
+      });
+
+      tl.to(LogoGroupRef.current, {
+        opacity: 0,
+        duration: 0.4,
+        ease: "power2.inOut"
+      }, "+= 0.4");
+
+      tl.to(LandingRef.current, {
+        backgroundColor: "#a0a0a0",
+        duration: 0.8
+      });
+    });
+  }
+
+
 
   useEffect(() => {
     if (
       !TriangleRef.current ||
       !CircleRef.current ||
       !LandingRef.current ||
-      !LogoWrapperRef.current
+      !BlondeRef.current ||
+      !InteractiveRef.current ||
+      !LogoContainerRef.current
     ) return;
 
     const path = TriangleRef.current;
     const circle = CircleRef.current;
-    const wrapper = LogoWrapperRef.current;
+    const blonde = BlondeRef.current;
+    const interactive = InteractiveRef.current;
 
     const length = path.getTotalLength();
+
+    const splitBlonde = new SplitText(blonde, { type: "chars" });
+    const splitInteractive = new SplitText(interactive, { type: "chars" });
+
+    const allChars = [...splitBlonde.chars, ...splitInteractive.chars];
 
     gsap.set(path, {
       strokeDasharray: length,
@@ -76,32 +84,38 @@ export default function Landing() {
       transformOrigin: "center"
     });
 
+    gsap.set(allChars, {
+      display: "inline-block",
+      y: 60,
+      opacity: 0,
+      rotation: 4,
+      scale: 0.95,
+      filter: "blur(8px)"
+    });
+
     const tl = gsap.timeline({
       onComplete: () => {
-        setTimeout(() => setShowMain(true), 1500);
+        PlayTransition().then(() => {
+           navigate("/home");
+        });
       }
     });
 
+    // Intro sequence
     tl.to(LandingRef.current, {
       backgroundColor: "#e9e9e9",
       duration: 1.5,
       ease: "power2.out"
     });
 
-    //triangle fade in :P
-    tl.to(path, {
-      opacity: 1,
-      duration: 0.4
-    });
+    tl.to(path, { opacity: 1, duration: 0.4 });
 
-    //outline triangle
     tl.to(path, {
       strokeDashoffset: 0,
       duration: 2,
       ease: "sine.inOut"
     });
 
-    //fill the triangle
     tl.to(path, {
       fill: "#c5efe4",
       stroke: "#c5efe4",
@@ -116,97 +130,128 @@ export default function Landing() {
       ease: "power3.out"
     });
 
-    //alighn to middle
-    tl.to(wrapper, {
-      x: -40,
-      duration: 1,
-      ease: "power2.inOut"
+    tl.to(splitBlonde.chars, {
+      y: 0,
+      opacity: 1,
+      rotation: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      stagger: 0.035,
+      duration: 0.5,
+      ease: "power4.out"
     });
 
-  }, []);
+    tl.to(splitInteractive.chars, {
+      y: 0,
+      opacity: 1,
+      rotation: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      stagger: 0.035,
+      duration: 0.5,
+      ease: "power4.out"
+    }, "-=0.4");
 
-  //temporary mosue mask effect, will replace with something better later
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!MaskRef.current) return;
+    tl.to({}, { duration: 0.6 });
 
-      const x = e.clientX;
-      const y = e.clientY;
+    tl.to(allChars, {
+      opacity: 0,
+      y: -20,
+      duration: 0.4,
+      stagger: 0.01
+    });
 
-      MaskRef.current.style.webkitMaskImage = `
-        radial-gradient(circle 200px at ${x}px ${y}px,
-        transparent 0%,
-        transparent 40%,
-        black 41%)
-      `;
+    tl.to(allChars, {
+      opacity: 1,
+      visibility: "hidden",
+    }, "-=0.3");
 
-      MaskRef.current.style.maskImage = `
-        radial-gradient(circle 200px at ${x}px ${y}px,
-        transparent 0%,
-        transparent 40%,
-        black 41%)
-      `;
+    tl.call(() => {
+      const group = LogoGroupRef.current;
+      if (!group) return;
+
+      const bbox = group.getBBox();
+
+      const centerX = bbox.x + bbox.width / 2;
+      const centerY = bbox.y + bbox.height / 2;
+
+      gsap.to(group, {
+        x: 130 - centerX,
+        y: 130 - centerY,
+        duration: 0.4,
+        ease: "power2.inOut"
+      });
+    }, undefined, "-=0.3");
+
+    /*
+    tl.to(LogoContainerRef.current, {
+      scale: 0.185,
+      x: -window.innerWidth / 2 + 100 - 30,
+      y: -window.innerHeight / 2 + 60,
+      duration: 1,
+      ease: "power3.inOut",
+      zIndex: 99
+    });*/
+
+    return () => {
+      splitBlonde.revert();
+      splitInteractive.revert();
+      tl.kill();
     };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  if (ShowMain) {
-    return <MainWebsite />;
-  }
+  });
 
   return (
     <div
       ref={LandingRef}
-      className="w-screen h-screen bg-black flex items-center justify-center overflow-hidden relative"
+      className="w-screen h-screen bg-black flex items-center justify-center overflow-hidden relative fixed inset-0 z-50"
     >
-      {/* color Layer */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div ref={LogoWrapperRef}>
-          <svg width="460" height="350" viewBox="0 0 260 260">
-            <defs>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="4" result="coloredBlur" />
-                <feMerge>
-                  <feMergeNode in="coloredBlur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-
-            <path
-              ref={TriangleRef}
-              d="M100 20 L180 160 L20 160 Z"
-              stroke="#ffffff"
-              strokeWidth="4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              filter="url(#glow)"
-            />
-
-            <circle
-              ref={CircleRef}
-              cx="180"
-              cy="90"
-              r="70"
-              fill="#6eabb1"
-            />
-          </svg>
-        </div>
-      </div>
-
-     
-
-      {/* greyscale mask */}
+      {/* LOGO */}
       <div
-        ref={MaskRef}
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backdropFilter: "grayscale(100%)",
-          WebkitBackdropFilter: "grayscale(100%)"
-        }}
-      />
+        ref={LogoContainerRef}
+        className="absolute flex flex-col items-center justify-center"
+      >
+        <svg width="460" height="350" viewBox="0 0 260 260">
+          <defs>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          <g ref= {LogoGroupRef}>
+          <path
+            ref={TriangleRef}
+            d="M100 20 L180 160 L20 160 Z"
+            stroke="#ffffff"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            filter="url(#glow)"
+          />
+
+          <circle
+            ref={CircleRef}
+            cx="180"
+            cy="90"
+            r="70"
+            fill="#6eabb1"
+          />
+          </g>
+        </svg>
+          
+
+        <h1 className="LandingTitle">
+          <span ref={BlondeRef} className="WordBlonde">
+            blonde
+          </span>
+          <span ref={InteractiveRef} className="WordInteractive">
+            Interactive
+          </span>
+        </h1>
+      </div>
     </div>
   );
 }
