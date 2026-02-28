@@ -1,15 +1,42 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@font-face {
+  font-family: 'BluuNext';
+  src: url('./assets/fonts/BluuNext/BluuNext-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
+html, body, #root {
+  min-height: 100%;
+  height: auto;
+}
 
-/*landing page styles*/
+html {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* landing page styles */
+.LandingWrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .LandingTitle {
   display: flex;
   align-items: baseline;
   font-family: 'Inconsolata', monospace;
 }
-
 
 .WordBlonde {
   font-size: 64px;
@@ -28,49 +55,122 @@
   color: #6eabb1;
 }
 
-
-/*home page styles */
+/* home page styles */
 .MainWrapper {
-  position: relative;
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
+  background: radial-gradient(circle at center, #c2c9c9a6, #87a5a871);
 }
+
+.TopBar {
+  position: fixed;
+  background: #c2c9c9;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  height: clamp(60px, 8vmin, 90px);;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 40px;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateY(-20px);
+  visibility: hidden;
+
+  font-family: 'Inconsolata', monospace;
+}
+
+.MenuButton {
+  position: fixed;
+  top: 25px;
+  right: 30px;
+
+  width: 5vmin;
+  height: 5vmin;
+
+  background: transparent;
+  border: 3px solid #87a5a8;
+
+  border-radius: 30%;
+  cursor: pointer;
+  z-index: 9999;
+
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+}
+
+
+
 
 .TopBarLogoContainer {
   display: flex;
   align-items: center;
-  text-shadow: 2px 1px 2px #87a5a8;
 }
 
 .TopBarContactContainer {
   display: flex;
   align-items: center;
-  text-shadow: 2px 1px 2px #87a5a8;
-  font-size: 24px;
+  flex-wrap: wrap-reverse;
+  justify-content: center;
+  gap: 1.2rem;
+  font-size: clamp(15px, 2.5vmin, 32px);
   font-weight: 900;
 }
 
+.ContactRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.2rem;
+}
+
 .ContactDivider {
-  width: 10px;
-  height: 24px;
+  width: 0.5rem;
+  height: 2.5rem;
   background-color: #87a5a8;
-  margin: 0 15px;
-  border-radius: 20%;
+  margin: 0 1.5rem;
+  border-radius: 4px;
 }
 
 .ContactItem {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.6rem;
+  white-space: nowrap;
 }
 
 .ContactIcon {
-  width: 14px;
-  height: 14px;
+  width: 1.1rem;
+  height: 1.1rem;
   object-fit: contain;
-  scale: 1.4;
-  line-height: 1;
-  padding-right: 1px;
+  flex-shrink: 0;
+  transform: translateY(1px);
+}
+
+.ContactIcon.gmail {
+  transform: translateY(2px);
+}
+
+@media (max-width: 640px) {
+  .ContactItem {
+    font-size: 0.85rem;
+  }
+
+  .ContactIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .ContactDivider {
+    display: none;
+  }
 }
 
 .Logo {
@@ -79,125 +179,102 @@
 }
 
 .Logo img {
-  width: 70px;
+  width: clamp(50px, 8vmin, 80px);
   height: auto;
   transition: transform 0.3s ease;
-
-  &:hover {
-    transform: scale(1.1);
-  }
 }
 
-.TopBar {
-  position: relative;
-  background: #c2c9c9a6;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 8%;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 0 40px;
-  box-sizing: border-box;
-
-  font-family: 'Inconsolata', monospace;
+.Logo img:hover {
+  transform: scale(1.1);
 }
+
 
 #LogoText {
   display: flex;
-  font-size: 24px;
+  font-size: clamp(15px, 2.5vmin, 32px);
   font-weight: bold;
-  letter-spacing: 2px;
   margin-left: 4vw;
-
-  #interactive {
-    position: relative;
-    color: #6eabb1;
-    font-size: 24px;
-    font-weight: bold;
-  };
 }
 
-.LogoTextContainer { /*credit to cj from syntax*/
+#LogoText #interactive {
+  position: relative;
+  color: #6eabb1;
+  font-size: clamp(15px, 2.5vmin, 32px);
+  font-weight: bold;
+}
+
+.LogoTextContainer {
   height: 30px;
   overflow: hidden;
   cursor: pointer;
   position: relative;
-
-  .hidden {
-    visibility: hidden;
-  }
-
-  .top {
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
-  a {
-    color: #d1fe00;
-    font-size: 30px;
-    text-decoration: none;
-    line-height: 1;
-    display: block;
-  }
-
-  .bottom {
-    position: relative;
-    top: 30px;
-    left: 0;
-  }
-
-  .topLetter,
-  .bottomLetter {
-    display: inline-block;
-    transition-property: transform, opacity;
-    transition-duration: 0.4s;
-    transition-timing-function: ease;
-  }
-  .topLetter {
-    opacity: 1;
-  }
-
-  .bottomLetter {
-    opacity: 0;
-  }
-
-  &:hover {
-    .topLetter {
-      transform: translateY(-30px);
-      opacity: 0;
-    }
-
-    .bottomLetter {
-      transform: translateY(-30px);
-      opacity: 1;
-    }
-  }
 }
 
-.MainContentArea {
-  height: calc(100vh - 80px);
+.LogoTextContainer .hidden {
+  visibility: hidden;
 }
 
+.LogoTextContainer .top {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.LogoTextContainer a {
+  color: #d1fe00;
+  font-size: clamp(24px, 2vmin, 40px);
+  text-decoration: none;
+  line-height: 1;
+  display: block;
+}
+
+.LogoTextContainer .bottom {
+  position: relative;
+  top: 30px;
+  left: 0;
+}
+
+.topLetter,
+.bottomLetter {
+  display: inline-block;
+  transition-property: transform, opacity;
+  transition-duration: 0.4s;
+  transition-timing-function: ease;
+}
+
+.topLetter {
+  opacity: 1;
+}
+
+.bottomLetter {
+  opacity: 0;
+}
+
+.LogoTextContainer:hover .topLetter {
+  transform: translateY(-30px);
+  opacity: 0;
+}
+
+.LogoTextContainer:hover .bottomLetter {
+  transform: translateY(-30px);
+  opacity: 1;
+}
+
+
+/*divider styles*/
 .TopBarDividerWrapper {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 15px;
-  pointer-events: auto;
-  overflow: visible;
+  height: 100%;
+  pointer-events: none;
 }
 
 .TopBarDivider {
   width: 100%;
   height: 100%;
-  display: inline-block;
-  overflow: visible;
+  display: block;
 }
 
 .TopBarDivider path {
@@ -206,3 +283,129 @@
   fill: none;
 }
 
+.MainContentArea {
+  min-height: calc(100vh - 80px);
+  padding: 4vw;
+}
+
+.HeroMain {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+
+  min-height: 70vh;
+  padding: 2vh 6vw;
+
+  font-family: 'Inconsolata', monospace;
+
+  border-radius: 20px;
+  overflow: visible;
+}
+
+.HeroMain .HeroTitle {
+  text-align: center;
+  font-size: clamp(48px, 8vw, 100px);
+  font-weight: bold;
+  color: #ffffff;
+  line-height: 1;
+  text-transform: uppercase;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.Highlight {
+  font-family: 'Inconsolata';
+  font-style: normal;
+  font-weight: 900;
+  background: #59A3A8;
+  filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3));
+  color: rgb(0, 0, 0);
+  padding: 0.1em 0.2em;
+  font-size: clamp(48px, 8vw, 100px);
+  transform: translateZ(40px);
+}
+
+.Highlight2 {
+  transform: translateZ(80px);
+  font-family: 'BluuNext';
+  font-weight: 700;
+  font-style: italic;
+  color: #39696d;
+  padding: 0.1em 0.2em;
+}
+
+.Highlight3 {
+  background: radial-gradient(circle at center, #4f8892, #b54f4f);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: clamp(48px, 8vw, 110px);
+  transform: translateZ(30px);
+}
+
+.Highlight4 {
+  transform: translateZ(70px);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background: linear-gradient(45deg, #b2c7c2, #87a5a8);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.Highlight5 {
+  font-size: clamp(48px, 8vw, 110px);
+  color: #111;
+  transform: translateZ(60px);
+}
+
+.Highlight,
+.Highlight2,
+.Highlight3,
+.Highlight4,
+.Highlight5  {
+  transform-style: preserve-3d;
+  will-change: transform;
+  display: inline-block;
+}
+
+.InlineGroup {
+  display: inline-flex;
+  gap: 0.1em;
+}
+
+/* scrollbar styles */
+::-webkit-scrollbar {
+  width: 20px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #87a5a8, #59A3A8);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #59A3A8 transparent;
+}
+
+.ScrollPath {
+  position: absolute;
+  right: 0px;
+  top: 8vmin;
+  pointer-events: none;
+  z-index: 900;
+}
+
+/* body section styles */
+.DummySection {
+  height: 150vh;
+}

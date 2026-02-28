@@ -25,8 +25,8 @@ export default function Landing() {
       const tl = gsap.timeline({
         onComplete: () => resolve()
       });
-
-      // scale container from center
+      
+      
       tl.to(LogoContainerRef.current, {
         scale: 12,
         transformOrigin: "center center",
@@ -41,13 +41,11 @@ export default function Landing() {
       }, "+= 0.4");
 
       tl.to(LandingRef.current, {
-        backgroundColor: "#a0a0a0",
+        background: "radial-gradient(circle at center, #c2c9c9a6, #87a5a871)",
         duration: 0.8
       });
     });
   }
-
-
 
   useEffect(() => {
     if (
@@ -101,7 +99,7 @@ export default function Landing() {
       }
     });
 
-    // Intro sequence
+    
     tl.to(LandingRef.current, {
       backgroundColor: "#e9e9e9",
       duration: 1.5,
@@ -203,9 +201,9 @@ export default function Landing() {
   return (
     <div
       ref={LandingRef}
-      className="w-screen h-screen bg-black flex items-center justify-center overflow-hidden relative fixed inset-0 z-50"
+      className="LandingWrapper"
     >
-      {/* LOGO */}
+      {/* logo */}
       <div
         ref={LogoContainerRef}
         className="absolute flex flex-col items-center justify-center"
@@ -241,8 +239,7 @@ export default function Landing() {
           />
           </g>
         </svg>
-          
-
+        
         <h1 className="LandingTitle">
           <span ref={BlondeRef} className="WordBlonde">
             blonde

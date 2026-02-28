@@ -1,14 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import "./style.css";
 import App from "./App";
-
+import SmoothScrollProvider from "./LenisProvider";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <SmoothScrollProvider>
+        <App />
+      </SmoothScrollProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
