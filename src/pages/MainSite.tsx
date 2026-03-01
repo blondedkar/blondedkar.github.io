@@ -3,9 +3,10 @@ import React from "react";
 import { gsap } from "gsap";
 import "../style.css";
 import { useScrollEvents } from "../hooks/useScrollEvents";
+import { useState } from "react";
 
 export default function MainWebsite() {
-  const Items = ["blonde Interactive"];
+  //const Items = ["blonde Interactive"];
   const ContactItems = [
     {
       label: "pedroramosm22@gmail.com",
@@ -25,8 +26,8 @@ export default function MainWebsite() {
   const DividerWrapperRef = useRef<SVGSVGElement>(null);
   const DividerRef = useRef<SVGPathElement>(null);
   const HeroRef = useRef<HTMLHeadingElement>(null);
-  const ScrollPathRef = useRef<SVGSVGElement | null>(null);
-  const ScrollProgressRef = useRef<SVGPathElement | null>(null);
+  const ScrollProgressRef = useRef<HTMLDivElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   
 
@@ -37,7 +38,7 @@ export default function MainWebsite() {
 
   if (!topBar || !svg || !path) return;
 
-  const BaseY = 19.5;
+  const BaseY = 20.5;
   const MaxHeight = 5;
 
   let TargetX = 50;
@@ -317,33 +318,96 @@ export default function MainWebsite() {
     });
   });
 
+  useScrollEvents((scroll) => {
+    if (!ScrollProgressRef.current) return;
+
+    const maxScroll =
+      document.documentElement.scrollHeight - window.innerHeight;
+
+    const progress = Math.min(scroll / maxScroll, 1);
+
+    gsap.set(ScrollProgressRef.current, {
+      scaleX: progress
+    });
+  });
+
+  useEffect(() => {
+  if (!TopBarRef.current) return;
+
+  gsap.set(TopBarRef.current, {
+    clipPath: "circle(0% at calc(100% - 30px) 25px)",
+    opacity: 0,
+    rotationX: -20,
+    rotationY: 15,
+    transformOrigin: "calc(100% - 30px) 25px",
+    transformStyle: "preserve-3d"
+  });
+}, []);
+
+ useEffect(() => {
+  if (!TopBarRef.current) return;
+
+  gsap.to(TopBarRef.current, {
+    clipPath: menuOpen
+      ? "circle(200% at calc(100% - 30px) 25px)"
+      : "circle(0% at calc(100% - 30px) 25px)",
+
+    opacity: menuOpen ? 1 : 0,
+
+    rotationX: menuOpen ? 0 : -20,
+    rotationY: menuOpen ? 0 : 15,
+
+    duration: 0.8,
+    ease: "power4.out",
+    delay: menuOpen ? 0.1 : 0
+  });
+
+}, [menuOpen]);
+
   return (
     <div className="MainWrapper">
+      <div className="ScrollProgressBar" ref={ScrollProgressRef}></div>
 
-      <button className= "MenuButton" onClick={() => console.log("Menu button clicked!")}></button>
-
-      {/* top bar */}
-      <div ref={TopBarRef} className="TopBar">
+      <button className= "MenuButton" onClick={() => setMenuOpen(!menuOpen)}>
         <svg
-          ref={ScrollPathRef}
-          className="ScrollPath"
-          preserveAspectRatio="none"
+          viewBox="0 0 310 259.34375"
+          stroke="currentColor"
+          strokeWidth="49"
+          strokeLinecap="round"
+          strokeLinejoin="miter"
+          className="MenuIcon"
         >
-          <path
-            ref={ScrollProgressRef}
-            d="M -40 0 L 10 1000"
-            stroke="#87a5a8"
-            strokeWidth={6}
-            fill="none"
-            vectorEffect="non-scaling-stroke"
-          />
+          <path d="M 19.668179 229.66275 H 270.31428" />
+          <path d="M 19.668179 129.66275 H 270.31428" />
+          <path d="M 19.668179 29.66275 H 270.31428" />
         </svg>
 
+        
+      </button>
+
+        <svg>
+            <filter id="displacementFilter">
+                <feTurbulence type="turbulence" 
+                    baseFrequency="0.01" 
+                    numOctaves="2" 
+                    result="turbulence" />
+        
+                <feDisplacementMap in="SourceGraphic"
+                    in2="turbulence"    
+                                scale="200" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+          </svg>
+
+
+      {/* top bar */}
+      <nav ref={TopBarRef} className={`TopBar ${menuOpen ? "Open" : ""}`}>
         <div className="TopBarLogoContainer">
           <div id="MainNavLogo" className="Logo">
             <img src="/logo.svg" alt="Logo" />
           </div>
 
+            
+          {/*}
           {Items.map((Item, Index) => (
             <div key={Index} className="LogoTextContainer">
               <div id="LogoText" className="top">
@@ -370,14 +434,14 @@ export default function MainWebsite() {
                 ))}
               </div>
             </div>
-          ))}
+          ))}*/}
         </div>
 
         <div className="TopBarContactContainer">
           {ContactItems.map((Item, Index) => (
             <React.Fragment key={Index}>
 
-              <div className="ContactItem">
+              <li className="ContactItem">
 
                 {/* link icon */}
                 <img
@@ -387,7 +451,7 @@ export default function MainWebsite() {
                 />
 
                 {/* link text */}
-                <div className="LogoTextContainer">
+                <a className="LogoTextContainer">
                   <div className="top">
                     {[...Item.label].map((Letter, i) => (
                       <span
@@ -411,9 +475,8 @@ export default function MainWebsite() {
                       </span>
                     ))}
                   </div>
-                </div>
-
-              </div>
+                </a>
+              </li>
 
               {Index < ContactItems.length - 1 && (
                 <span className="ContactDivider"></span>
@@ -432,7 +495,7 @@ export default function MainWebsite() {
           >
             <path
               ref={DividerRef}
-              d="M0 19.5 L100 19.5"
+              d="M0 20.5 L100 20.5"
               stroke="#87a5a8"
               strokeWidth="2"
               fill="none"
@@ -440,7 +503,7 @@ export default function MainWebsite() {
             />
           </svg>
         </div>
-      </div>
+      </nav>
 
       <div className="MainContentArea">
         <main>

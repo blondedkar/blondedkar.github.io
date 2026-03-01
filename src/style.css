@@ -64,27 +64,70 @@ body {
 
 .TopBar {
   position: fixed;
-  background: #c2c9c9;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  width: 100%;
-  height: clamp(60px, 8vmin, 90px);;
-  z-index: 1000;
+  top: 30px;
+  right: 28%;
+
+  height: 2.25vh;
 
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items:center;
+  gap: 2rem;
 
-  padding: 0 40px;
-  box-sizing: border-box;
-  opacity: 0;
-  transform: translateY(-20px);
-  visibility: hidden;
+  padding: 0.8rem 2.5rem;
 
+  border-radius: 999px;
+
+  backdrop-filter: brightness(1.05) blur(5px) url(#displacementF);
+
+  font-size: clamp(12px, 1vw, 18px);
   font-family: 'Inconsolata', monospace;
+  font-weight: 900;
+  clip-path: circle(0% at 95% 5%);
+  will-change: clip-path;
+  isolation: isolate;
+
+  z-index: 1000;
 }
+
+.TopBarDividerWrapper {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.TopBarDivider {
+  width: 100%;
+  height: 100%;
+}
+
+.TopBarDivider path {
+  stroke: #CCD7D8;
+  stroke-width: 1;
+  fill: #ccd7d8;
+  backdrop-filter: brightness(1.05) blur(5px) url(#displacementF);
+  mix-blend-mode: difference;
+}
+
+.TopBarLogoContainer {
+  display: flex;
+  align-items: center;
+  scale: 0.6;
+}
+
+
+.TopBarContactContainer {
+  display: flex;
+  align-self: stretch;
+  gap: 2rem;
+}
+
 
 .MenuButton {
   position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   top: 25px;
   right: 30px;
 
@@ -92,35 +135,46 @@ body {
   height: 5vmin;
 
   background: transparent;
-  border: 3px solid #87a5a8;
-
+  border: 2px solid #87a5a800;
   border-radius: 30%;
+  filter: drop-shadow(-8px -10px 46px #ffffff00);
+  backdrop-filter: brightness(1.05) blur(2px) url(#displacementF);
+
+
   cursor: pointer;
   z-index: 9999;
 
-  transition: box-shadow 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  }
+  overflow: hidden;
 }
 
+.MenuButton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #87a5a8;
 
-
-
-.TopBarLogoContainer {
-  display: flex;
-  align-items: center;
+  clip-path: circle(0% at 100% 0%);
+  transition: clip-path 0.45s ease;
 }
 
-.TopBarContactContainer {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap-reverse;
-  justify-content: center;
-  gap: 1.2rem;
-  font-size: clamp(15px, 2.5vmin, 32px);
-  font-weight: 900;
+.MenuButton:hover::before {
+  clip-path: circle(150% at 100% 0%);
+}
+
+.MenuButton:hover {
+  clip-path: circle(150% at 100% 0%);
+}
+
+.MenuIcon {
+  width: 60%;
+  stroke: #87a5a8;
+  transition: stroke 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.MenuButton:hover .MenuIcon {
+  stroke: #CBD8D9;
 }
 
 .ContactRow {
@@ -132,16 +186,17 @@ body {
 }
 
 .ContactDivider {
-  width: 0.5rem;
-  height: 2.5rem;
+  width: 0.3rem;
+  height: 1.5rem;
   background-color: #87a5a8;
   margin: 0 1.5rem;
   border-radius: 4px;
+  align-self: center;
 }
 
 .ContactItem {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 0.6rem;
   white-space: nowrap;
 }
@@ -149,9 +204,8 @@ body {
 .ContactIcon {
   width: 1.1rem;
   height: 1.1rem;
-  object-fit: contain;
   flex-shrink: 0;
-  transform: translateY(1px);
+  top: 5px;
 }
 
 .ContactIcon.gmail {
@@ -238,7 +292,7 @@ body {
 .bottomLetter {
   display: inline-block;
   transition-property: transform, opacity;
-  transition-duration: 0.4s;
+  transition-duration: 0.3s;
   transition-timing-function: ease;
 }
 
@@ -262,26 +316,6 @@ body {
 
 
 /*divider styles*/
-.TopBarDividerWrapper {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.TopBarDivider {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.TopBarDivider path {
-  stroke: #87a5a8;
-  stroke-width: 5;
-  fill: none;
-}
 
 .MainContentArea {
   min-height: calc(100vh - 80px);
@@ -296,7 +330,7 @@ body {
   perspective: 1200px;
   transform-style: preserve-3d;
 
-  min-height: 70vh;
+  min-height: 40vh;
   padding: 2vh 6vw;
 
   font-family: 'Inconsolata', monospace;
@@ -397,12 +431,19 @@ body {
   scrollbar-color: #59A3A8 transparent;
 }
 
-.ScrollPath {
-  position: absolute;
-  right: 0px;
-  top: 8vmin;
-  pointer-events: none;
-  z-index: 900;
+.ScrollProgressBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 6px;
+  width: 100%;
+  background: #6eabb1;
+  z-index: 9999;
+  transform: scaleX(0);
+  transform-origin: left center;
+  backdrop-filter: blur(6px);
+
+  box-shadow: 0 0 8px rgba(110, 171, 177, 0.6);
 }
 
 /* body section styles */
