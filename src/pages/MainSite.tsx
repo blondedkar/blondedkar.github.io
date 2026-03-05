@@ -1,33 +1,62 @@
 import { useEffect, useRef } from "react";
-import React from "react";
 import { gsap } from "gsap";
 import "../style.css";
-import { useScrollEvents } from "../hooks/useScrollEvents";
 import { useState } from "react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import SplitText from "gsap/SplitText";
+
+
+gsap.registerPlugin(ScrollTrigger, SplitText);
 
 export default function MainWebsite() {
-  //const Items = ["blonde Interactive"];
+  useEffect(() => {
+  console.log(`
+    ██████╗ ██╗      ██████╗ ███╗   ██╗██████╗ ███████╗
+    ██╔══██╗██║     ██╔═══██╗████╗  ██║██╔══██╗██╔════╝
+    ██████╔╝██║     ██║   ██║██╔██╗ ██║██║  ██║█████╗  
+    ██╔══██╗██║     ██║   ██║██║╚██╗██║██║  ██║██╔══╝  
+    ██████╔╝███████╗╚██████╔╝██║ ╚████║██████╔╝███████╗
+    ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═════╝ ╚══════╝
+
+    ██╗███╗   ██╗████████╗███████╗██████╗  █████╗  ██████╗████████╗██╗██╗   ██╗███████╗
+    ██║████╗  ██║╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔════╝╚══██╔══╝██║██║   ██║██╔════╝
+    ██║██╔██╗ ██║   ██║   █████╗  ██████╔╝███████║██║        ██║   ██║██║   ██║█████╗  
+    ██║██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗██╔══██║██║        ██║   ██║╚██╗ ██╔╝██╔══╝  
+    ██║██║ ╚████║   ██║   ███████╗██║  ██║██║  ██║╚██████╗   ██║   ██║ ╚████╔╝ ███████╗
+    ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝   ╚═╝   ╚═╝  ╚═══╝  ╚══════╝
+    `);
+  }, []);
+
+
+
+  //const Items = ["blonde Interactive"]; --probably can add this bottom left? maybe...
   const ContactItems = [
     {
       label: "pedroramosm22@gmail.com",
-      icon: "/gmail.svg"
+      icon: "/gmail.svg",
+      link: "mailto:pedroramosm22@gmail.com"
     },
     {
       label: "LinkedIn",
-      icon: "/LinkedIn.svg"
+      icon: "/LinkedIn.svg",
+      link: "https://www.linkedin.com/in/pedro-ramos-b74a10258/"
     },
     {
      label: "GitHub",
-     icon: "/Github.svg"
+     icon: "/Github.svg",
+     link: "https://github.com/blondedkar"
     }
-  ];  
+  ]; 
 
+  const Projects = ["Self", "CPU Rasterizer", "World-Space Mapping", "Modular Systems"]
+  const ProjectsHeaderRef = useRef<HTMLHeadingElement>(null); 
   const TopBarRef = useRef<HTMLDivElement>(null);
   const DividerWrapperRef = useRef<SVGSVGElement>(null);
   const DividerRef = useRef<SVGPathElement>(null);
   const HeroRef = useRef<HTMLHeadingElement>(null);
   const ScrollProgressRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const ScrollLabel = useRef<HTMLButtonElement>(null);
 
   
 
@@ -148,7 +177,6 @@ export default function MainWebsite() {
 
   }, []);
 
-
   useEffect(() => {
   if (!HeroRef.current) return;
 
@@ -163,7 +191,6 @@ export default function MainWebsite() {
     const Technical = HeroRef.current!.querySelector(".Highlight5");
     const Writer = HeroRef.current!.querySelectorAll(".Highlight2")[1];
 
-  
     gsap.set(HeroRef.current, {
       rotationX: 0,
       rotationY: 0,
@@ -244,92 +271,128 @@ export default function MainWebsite() {
       ease: "power2.out"
     }, "-=0.6");
 
+    tl.to(HeroRef.current, {
+      y: -150,
+    })
+
+    tl.to(ScrollLabel.current, {
+      opacity: 1,
+      y: 0,
+      ease: "sine.in.out"
+    })
   }, HeroRef);
 
   return () => ctx.revert();
 }, []);
 
   useEffect(() => {
-    if (!HeroRef.current) return;
+  if (!HeroRef.current) return;
 
-    const hero = HeroRef.current;
-    const Strength = 1;
+  const hero = HeroRef.current;
+  const Strength = 1;
 
-    const HandleMove = (e: MouseEvent) => {
-      const rect = hero.getBoundingClientRect();
+  const HandleMove = (e: MouseEvent) => {
+    const rect = hero.getBoundingClientRect();
 
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
 
-      gsap.to(hero, {
-        rotationY: x * Strength,
-        rotationX: -y * Strength,
-        duration: 0.6,
-        ease: "power2.out"
-      });
-    };
-
-    const HandleLeave = () => {
-      gsap.to(hero, {
-        rotationY: 0,
-        rotationX: 0,
-        duration: 0.8,
-        ease: "power2.out"
-      });
-    };
-
-    hero.addEventListener("mousemove", HandleMove);
-    hero.addEventListener("mouseleave", HandleLeave);
-
-    return () => {
-      hero.removeEventListener("mousemove", HandleMove);
-      hero.removeEventListener("mouseleave", HandleLeave);
-    };
-  }, []);
-
-  useScrollEvents((scroll) => {
-    if (!HeroRef.current) return;
-
-    const spans = HeroRef.current.querySelectorAll(
-      ".Highlight, .Highlight2, .Highlight3, .Highlight4, .Highlight5"
-    );
-
-    if (!spans.length) return;
-
-    const progress = Math.min(scroll / 400, 1);
-
-    const total = spans.length;
-    const center = (total - 1) / 2;
-
-    spans.forEach((el, i) => {
-      const distanceFromCenter = i - center;
-
-      const direction = Math.sign(distanceFromCenter);
-      const magnitude = Math.abs(distanceFromCenter);
-
-      const spread = progress * magnitude * 60;
-      const depth = progress * magnitude * 20;
-
-      gsap.set(el, {
-        x: direction * spread,
-        z: depth,
-        rotateY: direction * progress * 10,
-      });
+    gsap.to(hero, {
+      rotationY: x * Strength,
+      rotationX: -y * Strength,
+      duration: 0.6,
+      ease: "power2.out",
     });
+  };
+
+  const HandleLeave = () => {
+    gsap.to(hero, {
+      rotationY: 0,
+      rotationX: 0,
+      duration: 0.8,
+      ease: "power2.out"
+    });
+  };
+
+  hero.addEventListener("mousemove", HandleMove);
+  hero.addEventListener("mouseleave", HandleLeave);
+
+  gsap.to(hero, {
+    scale: 0.1,
+    scrollTrigger: {
+      start: 0,
+      end: "bottom top",
+      scrub: true,
+    }
   });
 
-  useScrollEvents((scroll) => {
-    if (!ScrollProgressRef.current) return;
+  return () => {
+    hero.removeEventListener("mousemove", HandleMove);
+    hero.removeEventListener("mouseleave", HandleLeave);
+  };
+}, []);
 
-    const maxScroll =
-      document.documentElement.scrollHeight - window.innerHeight;
+  useEffect(() => {
+  if (!HeroRef.current) return;
 
-    const progress = Math.min(scroll / maxScroll, 1);
+  const spans = HeroRef.current.querySelectorAll(
+    ".Highlight, .Highlight2, .Highlight3, .Highlight4, .Highlight5"
+  );
 
-    gsap.set(ScrollProgressRef.current, {
-      scaleX: progress
-    });
+  if (!spans.length) return;
+
+  const total = spans.length;
+  const center = (total - 1) / 2;
+
+  ScrollTrigger.create({
+    trigger: HeroRef.current,
+    start: 0,
+    end: "bottom top",
+    scrub: true,
+
+    onUpdate: (self) => {
+      const progress = self.progress;
+
+      spans.forEach((el, i) => {
+        const distance = i - center;
+        const magnitude = Math.abs(distance);
+
+        const localProgress = Math.max(
+          0,
+          Math.min(1, progress - magnitude * 0.08)
+        );
+
+        const flipAmount = localProgress * 120;
+        const depth = localProgress * 80;
+
+        gsap.set(el, {
+          rotateX: -flipAmount,
+          z: depth,
+          opacity: 1 - localProgress,
+          transformOrigin: "center bottom",
+        });
+      });
+    },
   });
+
+}, []);
+
+  useEffect(() => {
+  if (!ScrollProgressRef.current) return;
+
+  ScrollTrigger.create({
+    start: 0,
+    end: "max",
+    scrub: true,
+
+    onUpdate: (self) => {
+      gsap.set(ScrollProgressRef.current, {
+        scaleX: self.progress
+      });
+    }
+  });
+
+}, []);
 
   useEffect(() => {
   if (!TopBarRef.current) return;
@@ -364,102 +427,251 @@ export default function MainWebsite() {
 
 }, [menuOpen]);
 
+useEffect(() => {
+
+  const ctx = gsap.context(() => {
+
+    gsap.from(".TitleChar", {
+      x: (i) => i % 2 === 0 ? -200 : 200,
+      rotateX: -90,
+      opacity: 0,
+      stagger: 0.08,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".ProjectsSection",
+        start: "40% bottom",
+        end: "60% center",
+        scrub: true,
+        markers: true,
+      }
+    });
+
+  });
+
+  return () => ctx.revert();
+
+}, []);
+
+useEffect(() => {
+
+  const folders = document.querySelectorAll(".ProjectFolder");
+
+  const handleMove = (e: MouseEvent) => {
+    const x = e.clientX / window.innerWidth - 0.5;
+    const y = e.clientY / window.innerHeight - 0.5;
+
+    folders.forEach((folder, i) => {
+      gsap.to(folder, {
+        rotateY: x * 10,
+        rotateX: -y * 10,
+        x: x * 20 * (i % 2 === 0 ? 1 : -1),
+        y: y * 20,
+        duration: 0.6,
+        ease: "power2.out"
+      });
+    });
+  };
+
+  window.addEventListener("mousemove", handleMove);
+
+  return () => window.removeEventListener("mousemove", handleMove);
+
+}, []);
+
+useEffect(() => {
+
+  gsap.to(".ProjectFolder", {
+    yPercent: (i) => (i % 2 === 0 ? -10 : 10),
+    ease: "none",
+    scrollTrigger: {
+      trigger: ".ProjectsSection",
+      start: "top bottom",
+      end: "bottom top",
+      scrub: true,
+    }
+  });
+
+}, []);
+
+useEffect(() => {
+  if (!ProjectsHeaderRef.current) return;
+
+  const ctx = gsap.context(() => {
+
+    const featured = ProjectsHeaderRef.current!.querySelector(".FeaturedWord");
+    const projects = ProjectsHeaderRef.current!.querySelector(".ProjectsWord");
+
+    if (!featured || !projects) return;
+
+    gsap.set(featured, {
+      x: -200,
+      opacity: 0
+    });
+
+    gsap.to(featured, {
+      x: 0,
+      opacity: 1,
+      ease: "sine-in",
+      scrollTrigger: {
+        trigger: featured,
+        start: "top bottom",
+        end: "top 60%",
+        scrub: true,
+      }
+    });
+
+    const split = new SplitText(projects, { type: "chars" });
+
+    gsap.set(split.chars, {
+      y: 80,
+      opacity: 0
+    });
+
+    gsap.to(split.chars, {
+      y: 0,
+      opacity: 1,
+      stagger: 0.04,
+      ease: "none",
+      scrollTrigger: {
+        trigger: featured,
+        start: "top bottom",
+        end: "top 50%",
+        scrub: true
+      }
+    });
+
+  }, ProjectsHeaderRef);
+
+  return () => ctx.revert();
+
+}, []);
+
+useEffect(() => {
+  const ctx = gsap.context(() => {
+    const folders = gsap.utils.toArray<HTMLElement>(".ProjectFolder");
+    folders.forEach((folder, i) => {
+      const isLeft = i % 2 === 0;
+
+      gsap.from(folder, {
+        x: isLeft ? -300 : 300,
+        opacity: 0,
+        rotateY: isLeft ? -20 : 20,
+        ease: "quad-in",
+        scrollTrigger: {
+          trigger: ".ProjectsSection",
+          start: "top 90%",
+          end: "top 60%",
+          scrub: 0.4,
+        }
+      });
+    });
+  });
+
+  return () => ctx.revert();
+}, []);
+
+useEffect(() => {
+  if (!ScrollLabel.current) return;
+
+  const el = ScrollLabel.current;
+
+  gsap.set(el, {
+    x: 50
+  })
+
+  gsap.to(el, {
+    scale: 0,
+    duration: 1,
+    scrollTrigger: {
+      start: 0,
+      end: 200,
+      scrub: false,
+    }
+  });
+}, []);
+
+/*organize connections */
+
   return (
     <div className="MainWrapper">
       <div className="ScrollProgressBar" ref={ScrollProgressRef}></div>
-
-      <button className= "MenuButton" onClick={() => setMenuOpen(!menuOpen)}>
-        <svg
-          viewBox="0 0 310 259.34375"
-          stroke="currentColor"
-          strokeWidth="49"
-          strokeLinecap="round"
-          strokeLinejoin="miter"
-          className="MenuIcon"
-        >
-          <path d="M 19.668179 229.66275 H 270.31428" />
-          <path d="M 19.668179 129.66275 H 270.31428" />
-          <path d="M 19.668179 29.66275 H 270.31428" />
-        </svg>
-
-        
-      </button>
-
-        <svg>
-            <filter id="displacementFilter">
-                <feTurbulence type="turbulence" 
-                    baseFrequency="0.01" 
-                    numOctaves="2" 
-                    result="turbulence" />
-        
-                <feDisplacementMap in="SourceGraphic"
-                    in2="turbulence"    
-                                scale="200" xChannelSelector="R" yChannelSelector="G" />
-            </filter>
+        <svg> {/*credit to the guy on youtube, ill have to find him again */} 
+          <filter id="displacementFilter">
+              <feTurbulence type="turbulence" 
+                  baseFrequency="0.01" 
+                  numOctaves="2" 
+                  result="turbulence" />
+      
+              <feDisplacementMap in="SourceGraphic"
+                  in2="turbulence"    
+                              scale="200" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
           </svg>
-
-
       {/* top bar */}
-      <nav ref={TopBarRef} className={`TopBar ${menuOpen ? "Open" : ""}`}>
-        <div className="TopBarLogoContainer">
-          <div id="MainNavLogo" className="Logo">
-            <img src="/logo.svg" alt="Logo" />
+      <nav>
+        <button
+          className="MenuButton"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <svg
+            viewBox="0 0 310 259.34375"
+            stroke="currentColor"
+            strokeWidth="49"
+            strokeLinecap="round"
+            strokeLinejoin="miter"
+            className="MenuIcon"
+          >
+            <path d="M 19.668179 229.66275 H 270.31428" />
+            <path d="M 19.668179 129.66275 H 270.31428" />
+            <path d="M 19.668179 29.66275 H 270.31428" />
+          </svg>
+        </button>
+
+        <div
+          ref={TopBarRef}
+          className={`TopBar ${menuOpen ? "Open" : ""}`}
+        >
+
+          {/* logo */}
+          <div className="TopBarLogoContainer">
+            <div id="MainNavLogo" className="Logo">
+              <img src="/logo.svg" alt="Logo" />
+            </div>
           </div>
 
-            
-          {/*}
-          {Items.map((Item, Index) => (
-            <div key={Index} className="LogoTextContainer">
-              <div id="LogoText" className="top">
-                {[...Item].map((Letter, i) => (
-                  <span
-                    key={i}
-                    className="topLetter"
-                    style={{ transitionDelay: `${i * 0.05}s` }}
-                  >
-                    {Letter === " " ? "\u00A0" : Letter}
-                  </span>
-                ))}
-              </div>
+          {/* links */}
+          <ul className="TopBarContactContainer">
+            {ContactItems.map((Item, Index) => (
+              <li className="ContactItem" key={Item.label}>
 
-              <div id="LogoText" className="bottom">
-                {[...Item].map((Letter, i) => (
-                  <span
-                    key={i}
-                    className="bottomLetter"
-                    style={{ transitionDelay: `${i * 0.05}s` }}
-                  >
-                    {Letter === " " ? "\u00A0" : Letter}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}*/}
-        </div>
-
-        <div className="TopBarContactContainer">
-          {ContactItems.map((Item, Index) => (
-            <React.Fragment key={Index}>
-
-              <li className="ContactItem">
-
-                {/* link icon */}
                 <img
                   src={Item.icon}
-                  alt={Item.icon}
-                  className={`ContactIcon ${Item.label === "pedroramosm22@gmail.com" ? "gmail" : ""}`}
+                  alt={Item.label}
+                  className={`ContactIcon ${
+                    Item.label === "pedroramosm22@gmail.com"
+                      ? "gmail"
+                      : ""
+                  }`}
                 />
 
-                {/* link text */}
-                <a className="LogoTextContainer">
+                <a
+                  href={Item.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="AnimatedTextContainer ContactLink"
+                >
                   <div className="top">
                     {[...Item.label].map((Letter, i) => (
                       <span
                         key={i}
                         className="topLetter"
-                        style={{ transitionDelay: `${i * 0.05}s` }}
+                        style={{
+                          transitionDelay: `${i * 0.02}s`,
+                        }}
                       >
-                        {Letter === " " ? "\u00A0" : Letter}
+                        {Letter === " "
+                          ? "\u00A0"
+                          : Letter}
                       </span>
                     ))}
                   </div>
@@ -469,45 +681,70 @@ export default function MainWebsite() {
                       <span
                         key={i}
                         className="bottomLetter"
-                        style={{ transitionDelay: `${i * 0.05}s` }}
+                        style={{
+                          transitionDelay: `${i * 0.02}s`,
+                        }}
                       >
-                        {Letter === " " ? "\u00A0" : Letter}
+                        {Letter === " "
+                          ? "\u00A0"
+                          : Letter}
                       </span>
                     ))}
                   </div>
                 </a>
+
+                {Index < ContactItems.length - 1 && (
+                  <span className="ContactDivider" />
+                )}
+
               </li>
+            ))}
+          </ul>
 
-              {Index < ContactItems.length - 1 && (
-                <span className="ContactDivider"></span>
-              )}
+          {/* divider path */}
+          <div className="TopBarDividerWrapper">
+            <svg
+              ref={DividerWrapperRef}
+              className="TopBarDivider"
+              preserveAspectRatio="none"
+              viewBox="0 0 100 20"
+            >
+              <path
+                ref={DividerRef}
+                d="M0 20.5 L100 20.5"
+                stroke="#87a5a8"
+                strokeWidth="2"
+                fill="none"
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+          </div>
 
-            </React.Fragment>
+        </div>
+
+        <div className={`MobileSidebar ${menuOpen ? "open" : ""}`}>
+          {ContactItems.map((Item) => (
+            <a
+              key={Item.label}
+              href={Item.link}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {Item.label}
+            </a>
           ))}
         </div>
 
-        <div className="TopBarDividerWrapper">
-          <svg
-            ref={DividerWrapperRef}
-            className="TopBarDivider"
-            preserveAspectRatio="none"
-            viewBox="0 0 100 20"
-          >
-            <path
-              ref={DividerRef}
-              d="M0 20.5 L100 20.5"
-              stroke="#87a5a8"
-              strokeWidth="2"
-              fill="none"
-              vectorEffect="non-scaling-stroke"
-            />
-          </svg>
-        </div>
       </nav>
 
       <div className="MainContentArea">
         <main>
-          <section className="HeroMain">
+          <section className="HeroContainer">
+            <button ref={ScrollLabel} id="ScrollLabel">
+              Scroll ↓
+            </button>
+
+
             <section className="HeroMain">
               <h1 ref={HeroRef} className="HeroTitle">
                 <span className="Highlight2">Pedro</span> {/*move down first*/}
@@ -522,8 +759,33 @@ export default function MainWebsite() {
               </h1>
             </section>
           </section>
+            
+          <section className="FeatureSection">
 
-          <section className="DummySection"/>
+            <section className="ProjectsSection">
+              <div className="ProjectsHeaderWrapper">
+                <h1 ref={ProjectsHeaderRef} className="ProjectsHeader">
+                  <span className="FeaturedWord">Featured</span>{" "}
+                  <span className="ProjectsWord">Projects</span>
+                </h1>
+              </div>
+
+              <div className="ProjectsGrid">
+                {Projects.map((project, i) => (
+                  <div className="ProjectFolder" data-project={project} key={i}>
+                    <div className="ProjectImage" />
+                    <h2 className="ProjectTitle">
+                      {[...project].map((letter, idx) => (
+                        <span key={idx} className="TitleChar">
+                          {letter === " " ? "\u00A0" : letter}
+                        </span>
+                      ))}
+                    </h2>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </section>
         </main>
       </div>
     </div>
