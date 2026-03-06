@@ -5,6 +5,9 @@ import { useState } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import SplitText from "gsap/SplitText";
 
+import * as THREE from "three";
+import FOG from 'vanta/dist/vanta.fog.min';
+
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -57,6 +60,8 @@ export default function MainWebsite() {
   const ScrollProgressRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const ScrollLabel = useRef<HTMLButtonElement>(null);
+  const BackgroundRef = useRef<HTMLDivElement>(null);
+  const VantaEffect = useRef<any>(null);
 
   
 
@@ -207,10 +212,45 @@ export default function MainWebsite() {
     gsap.set(Developer, { y: 25 });
     gsap.set(Technical, { x: -40 });
 
+    const StartFog = () => {
+    if (!BackgroundRef.current) return;
+
+    VantaEffect.current = FOG({
+      el: BackgroundRef.current,
+      THREE: THREE,
+      highlightColor: 0xffffff,
+      midtoneColor: 0xffffff,
+      lowlightColor: 0x4ea5ac,
+      baseColor: 0xd4dbdb,
+      blurFactor: 0.67,
+      speed: 3,
+      zoom: 1
+    });
+
+    const canvas = BackgroundRef.current?.querySelector("canvas");
+
+    if (canvas) {
+      gsap.set(canvas, { opacity: 0 });
+
+      gsap.to(canvas, {
+        opacity: 1,
+        duration: 1,
+        ease: "sine.out"
+      });
+    }
+  };
+
     const Letters = Writer?.textContent?.split("") || [];
     Writer!.innerHTML = Letters.map(l => `<span class="TypeLetter">${l}</span>`).join("");
     const TypeLetters = HeroRef.current!.querySelectorAll(".TypeLetter");
     gsap.set(TypeLetters, { opacity: 0 });
+
+    tl.call(StartFog)
+
+   tl.set(HeroRef.current, {
+      opacity: 1,
+      y: 0
+    });
 
     tl.to(Pedro, {
       y: 0,
@@ -439,10 +479,9 @@ useEffect(() => {
       ease: "none",
       scrollTrigger: {
         trigger: ".ProjectsSection",
-        start: "40% bottom",
-        end: "60% center",
+        start: "20% bottom",
+        end: "35% center",
         scrub: true,
-        markers: true,
       }
     });
 
@@ -590,10 +629,35 @@ useEffect(() => {
   });
 }, []);
 
+// useEffect(() => {
+//   if (!BackgroundRef.current) return;
+
+//   VantaEffect.current = FOG({
+//     el: BackgroundRef.current,
+//     THREE: THREE,
+
+//     highlightColor: 0xffffff,
+//     midtoneColor: 0xffffff,
+//     lowlightColor: 0x4ea5ac,
+//     baseColor: 0xd4dbdb,
+//     blurFactor: 0.67,
+//     speed: 3,
+//     zoom: 1
+//   });
+
+  
+//   return () => {
+//     VantaEffect.current?.destroy();
+//   };
+// }, []);
+
+
+
+
 /*organize connections */
 
   return (
-    <div className="MainWrapper">
+    <div ref={BackgroundRef} className="MainWrapper">
       <div className="ScrollProgressBar" ref={ScrollProgressRef}></div>
         <svg> {/*credit to the guy on youtube, ill have to find him again */} 
           <filter id="displacementFilter">
@@ -703,21 +767,23 @@ useEffect(() => {
 
           {/* divider path */}
           <div className="TopBarDividerWrapper">
-            <svg
-              ref={DividerWrapperRef}
-              className="TopBarDivider"
-              preserveAspectRatio="none"
-              viewBox="0 0 100 20"
-            >
-              <path
-                ref={DividerRef}
-                d="M0 20.5 L100 20.5"
-                stroke="#87a5a8"
-                strokeWidth="2"
-                fill="none"
-                vectorEffect="non-scaling-stroke"
-              />
-            </svg>
+            <mask id="dividerMask">
+              <svg
+                ref={DividerWrapperRef}
+                className="TopBarDivider"
+                preserveAspectRatio="none"
+                viewBox="0 0 100 20"
+              >
+                <path
+                  ref={DividerRef}
+                  d="M0 20.5 L100 20.5"
+                  stroke="#87a5a8"
+                  strokeWidth="2"
+                  fill="none"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </svg>
+            </mask>
           </div>
 
         </div>
@@ -772,7 +838,7 @@ useEffect(() => {
 
               <div className="ProjectsGrid">
                 {Projects.map((project, i) => (
-                  <div className="ProjectFolder" data-project={project} key={i}>
+                  <a className="ProjectFolder" data-project={project} key={i}>
                     <div className="ProjectImage" />
                     <h2 className="ProjectTitle">
                       {[...project].map((letter, idx) => (
@@ -781,7 +847,7 @@ useEffect(() => {
                         </span>
                       ))}
                     </h2>
-                  </div>
+                  </a>
                 ))}
               </div>
             </section>

@@ -39,6 +39,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  opacity: 0;
 }
 
 .LandingTitle {
@@ -68,7 +70,17 @@ body {
 .MainWrapper {
   width: 100%;
   min-height: 100vh;
-  background: radial-gradient(circle at center, #c2c9c9a6, #87a5a871);
+  position: relative;
+
+  background: radial-gradient(circle at center, #D6DDDE, #FFFFFF)
+}
+.MainWrapper canvas {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: -2;
 }
 
 .Logo img {
@@ -188,6 +200,11 @@ nav .TopBar {
   clip-path: circle(0% at 95% 5%);
   will-change: clip-path;
   isolation: isolate;
+
+  mask: url(#dividerMask);
+  -webkit-mask: url(#dividerMask);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
 }
 
 .ContactItem {
@@ -227,11 +244,8 @@ nav .TopBar {
 }
 
 .TopBarDivider path {
-  stroke: #CCD7D8;
-  stroke-width: 1;
-  fill: #ccd7d8;
-  backdrop-filter: brightness(1.05) blur(5px) url(#displacementF);
-  mix-blend-mode: difference;
+  fill: white;
+  stroke: none;
 }
 
 .ContactLink {
@@ -254,7 +268,7 @@ nav .TopBar {
   }
 
   .HeroContainer {
-    scale: 0.75;
+    scale: 0.5;
   }
 }
 
@@ -402,6 +416,7 @@ nav .MenuButton {
   perspective: 1200px;
   transform-style: preserve-3d;
   
+  
   max-width: 1200px;
   margin: 0 auto;
   scale: 1.1;
@@ -421,6 +436,8 @@ nav .MenuButton {
   text-transform: uppercase;
   transform-style: preserve-3d;
   will-change: transform;
+
+   opacity: 0;
 }
 
 .Highlight {
@@ -585,6 +602,7 @@ nav .MenuButton {
   backdrop-filter: brightness(1.05) blur(5px) url(#displacementF);
 
   isolation: isolate;
+
 }
 
 .ProjectFolder[data-project="Self"] {
@@ -611,6 +629,18 @@ nav .MenuButton {
   background-repeat: no-repeat;
   background-size:70%;
   background-position:center;
+
+  .ProjectImage {
+    background-image: url('/RasterizerIcon.png');
+    background-repeat: inherit;
+    background-position: inherit;
+    background-size: cover;
+
+    background-size: 120%;
+    background-position: 50% 50%;
+
+    animation: slowDrift 20s ease-in-out infinite alternate;
+  }
 }
 
 .ProjectFolder[data-project="World-Space Mapping"] {
@@ -618,6 +648,18 @@ nav .MenuButton {
   background-repeat: no-repeat;
   background-size:70%;
   background-position:center;
+
+  .ProjectImage {
+    background-image: url('/Mapping.png');
+    background-repeat: inherit;
+    background-position: inherit;
+    background-size: cover;
+
+    background-size: 120%;
+    background-position: 50% 50%;
+
+    animation: slowDrift 20s ease-in-out infinite alternate;
+  }
 }
 
 .ProjectFolder[data-project="Modular Systems"] {

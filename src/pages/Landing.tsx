@@ -4,6 +4,8 @@ import SplitText from "gsap/SplitText";
 import { useNavigate } from "react-router-dom";
 import "../style.css";
 
+
+
 gsap.registerPlugin(SplitText);
 
 export default function Landing() {
@@ -18,6 +20,7 @@ export default function Landing() {
   const BlondeRef = useRef<HTMLSpanElement>(null);
   const InteractiveRef = useRef<HTMLSpanElement>(null);
 
+  
   const PlayTransition = async () => {
     return new Promise<void>((resolve) => {
       if (!TriangleRef.current || !CircleRef.current) return;
@@ -25,6 +28,8 @@ export default function Landing() {
       const tl = gsap.timeline({
         onComplete: () => resolve()
       });
+
+     
       
       
       tl.to(LogoContainerRef.current, {
@@ -39,9 +44,8 @@ export default function Landing() {
         duration: 0.4,
         ease: "power2.inOut"
       }, "+= 0.4");
-
       tl.to(LandingRef.current, {
-        background: "radial-gradient(circle at center, #c2c9c9a6, #87a5a871)",
+        background: "radial-gradient(circle at center, #D6DDDE, #FFFFFF)",
         duration: 0.8
       });
     });
@@ -68,6 +72,11 @@ export default function Landing() {
     const splitInteractive = new SplitText(interactive, { type: "chars" });
 
     const allChars = [...splitBlonde.chars, ...splitInteractive.chars];
+
+    gsap.set(LandingRef.current, {
+      opacity: 1,
+      duration: 0.2
+    })
 
     gsap.set(path, {
       strokeDasharray: length,
@@ -98,6 +107,8 @@ export default function Landing() {
         });
       }
     });
+
+     
 
     
     tl.to(LandingRef.current, {
@@ -179,24 +190,15 @@ export default function Landing() {
         duration: 0.4,
         ease: "power2.inOut"
       });
-    }, undefined, "-=0.3");
+    }, undefined);
 
-    /*
-    tl.to(LogoContainerRef.current, {
-      scale: 0.185,
-      x: -window.innerWidth / 2 + 100 - 30,
-      y: -window.innerHeight / 2 + 60,
-      duration: 1,
-      ease: "power3.inOut",
-      zIndex: 99
-    });*/
-
-    return () => {
-      splitBlonde.revert();
-      splitInteractive.revert();
-      tl.kill();
-    };
-  });
+      return () => {
+        splitBlonde.revert();
+        splitInteractive.revert();
+       
+        tl.kill();
+      };
+    });
 
   return (
     <div
