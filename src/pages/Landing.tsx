@@ -4,8 +4,6 @@ import SplitText from "gsap/SplitText";
 import { useNavigate } from "react-router-dom";
 import "../style.css";
 
-
-
 gsap.registerPlugin(SplitText);
 
 export default function Landing() {
@@ -29,11 +27,8 @@ export default function Landing() {
         onComplete: () => resolve()
       });
 
-     
-      
-      
       tl.to(LogoContainerRef.current, {
-        scale: 12,
+        scale: 0,
         transformOrigin: "center center",
         duration: 0.7,
         ease: "power4.inOut"
@@ -41,13 +36,9 @@ export default function Landing() {
 
       tl.to(LogoGroupRef.current, {
         opacity: 0,
-        duration: 0.4,
+        duration: 1,
         ease: "power2.inOut"
       }, "+= 0.4");
-      tl.to(LandingRef.current, {
-        background: "radial-gradient(circle at center, #D6DDDE, #FFFFFF)",
-        duration: 0.8
-      });
     });
   }
 
@@ -108,11 +99,8 @@ export default function Landing() {
       }
     });
 
-     
-
-    
     tl.to(LandingRef.current, {
-      backgroundColor: "#e9e9e9",
+      backgroundColor: "transparent",
       duration: 1.5,
       ease: "power2.out"
     });

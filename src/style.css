@@ -43,6 +43,12 @@ body {
   opacity: 0;
 }
 
+.LandingOverlay {
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+}
+
 .LandingTitle {
   display: flex;
   align-items: baseline;
@@ -71,8 +77,7 @@ body {
   width: 100%;
   min-height: 100vh;
   position: relative;
-
-  background: radial-gradient(circle at center, #D6DDDE, #FFFFFF)
+  background: transparent;
 }
 .MainWrapper canvas {
   position: fixed !important;
@@ -87,6 +92,13 @@ body {
   width: clamp(50px, 8vmin, 80px);
   height: 40px;
   transition: transform 0.3s ease;
+}
+
+.GlobalLogoButton {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
 }
 
 .Logo img:hover {
@@ -380,31 +392,58 @@ nav .MenuButton {
 
 #ScrollLabel {
   opacity: 0;
-  background: transparent;
-  border-color:transparent;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   z-index: 9999;
-  border-radius: 20px;
-  padding: 0;
+  border-radius: 999px;
+  padding: 0.9rem 1.2rem;
 
   color: #111111d1;
  
   cursor: pointer;
   perspective: 1200px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  transform-style: preserve-3d;
 
   position: fixed;
   bottom: 10%;
-  left: 47%;
-  transform: translate(-50%);
+  left: 50%;
+  transform: translateX(-50%);
 
-  filter: drop-shadow(-8px -10px 46px #ffffff00);
-  backdrop-filter: brightness(1.05) blur(2px) url(#displacementF);
-
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 16px 40px rgba(24, 40, 42, 0.12);
+  filter: drop-shadow(0 8px 24px rgba(255, 255, 255, 0.08));
+  backdrop-filter: brightness(1.05) blur(14px) saturate(160%) url(#displacementF);
 
   font-family: 'Inconsolata', monospace;
-  font-size: clamp(16px, 3vw, 28px);
+  font-size: clamp(15px, 2vw, 22px);
   font-weight: 800;
-  text-transform: lowercase;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
   -webkit-tap-highlight-color: transparent;
+}
+
+.ScrollPromptWord {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.05em;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.ScrollPromptLetter {
+  display: inline-block;
+  will-change: transform;
+}
+
+.ScrollPromptArrow {
+  display: inline-block;
+  font-size: 0.8em;
+  opacity: 0.72;
+  transform: translateY(1px);
 }
 
 .HeroMain {
@@ -567,8 +606,9 @@ nav .MenuButton {
   line-height: 1.05;
   text-align: left;
   overflow: hidden;
+}
 
-  .FeaturedWord {
+.FeaturedWord {
     background: #75B0B3;
     color: #000000;
     
@@ -577,7 +617,6 @@ nav .MenuButton {
   .FeaturedWord, .ProjectsWord {
     display: inline-block;
   }
-}
 
 .ProjectsGrid {
   display: grid;
@@ -591,18 +630,38 @@ nav .MenuButton {
 
 .ProjectFolder {
   position: relative;
-  border-radius: 20px;
+  border-radius: 34px 42px 30px 38px / 32px 26px 40px 30px;
   aspect-ratio: 16 / 9;
   width: 100%;
   overflow: hidden;
-  transition: transform 0.4s ease;
   transform-style: preserve-3d;
   cursor: pointer;
+  will-change: transform, opacity;
 
-  backdrop-filter: brightness(1.05) blur(5px) url(#displacementF);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.1)),
+    linear-gradient(135deg, rgba(135, 165, 168, 0.16), rgba(255, 255, 255, 0.04));
+  backdrop-filter: brightness(1.05) blur(18px) saturate(165%) url(#displacementF);
+  -webkit-backdrop-filter: brightness(1.05) blur(18px) saturate(165%) url(#displacementF);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    0 22px 48px rgba(33, 54, 57, 0.14);
 
   isolation: isolate;
+}
 
+.ProjectFolder::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.4), transparent 30%),
+    radial-gradient(circle at 84% 78%, rgba(110, 171, 177, 0.18), transparent 34%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .ProjectFolder[data-project="Self"] {
@@ -680,6 +739,7 @@ nav .MenuButton {
   transition: clip-path 0.7s;
   transition-timing-function:ease-out;
   z-index: 1;
+  mix-blend-mode: normal;
 }
 
 .ProjectFolder:hover .ProjectImage {
@@ -691,8 +751,8 @@ nav .MenuButton {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 20px;
-  border: 3px solid var(--accent-color);
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.36);
   transform: scale(0.98);
   opacity: 0;
   transition: 
@@ -710,24 +770,36 @@ nav .MenuButton {
 
 .ProjectTitle {
   position: absolute;
-  bottom: 1px;
-  left: 20px;
+  bottom: 16px;
+  left: 18px;
   font-family: 'Inconsolata', monospace;
   font-size: clamp(18px, 2vw, 28px);
   color: var(--accent-color);
   z-index: 2;
 
-  background: #D0D9DA;
-  border-radius: 10px;
-
-
+  padding: 0.35rem 0.7rem;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  backdrop-filter: blur(12px) saturate(150%);
   color: rgb(0, 0, 0);
   overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .TitleChar {
   display: inline-block;
   transform-origin: bottom;
+}
+
+.UpcomingProjects {
+  font-family: 'Inconsolata', monospace;
+  font-size: clamp(48px, 6vw, 90px);
+  font-weight: 900;
+  color: var(--accent-color);
+  line-height: 1.05;
+  text-align: center;
+  overflow: hidden;
 }
 
 @media (max-width: 1024px) {

@@ -1,18 +1,38 @@
+import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Landing from "./pages/Landing";
 import MainWebsite from "./pages/MainSite";
-
+import SiteProject from "./pages/SiteProject";
+import MappingProject from "./pages/MappingProject";
+import RastProject from "./pages/RastProject";
+import SystemsProject from "./pages/SystemsProject";
+import FogBackground from "./components/FogBackground";
+import GlobalChrome from "./components/GlobalChrome";
+import "./transitions.css";
 
 export default function App() {
-  return (
-    <div className="relative w-screen h-screen overflow-hidden">
-      <Routes>
-        <Route path="/" element={<Navigate to="/landing" />} />
-        <Route path="/landing" element={<Landing />} />
-        <Route path="/home" element={<MainWebsite />} />
-      </Routes>
-    </div>
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+  }, []);
 
-    
+  return (
+    <div className="relative isolate min-h-screen w-full">
+      <FogBackground />
+      <GlobalChrome />
+
+      <div className="relative z-10">
+        <Routes>
+          <Route path="/" element={<Navigate to="/landing" />} />
+          <Route path="/landing" element={<Landing />} />
+          <Route path="/home" element={<MainWebsite />} />
+          <Route path="/SiteProject" element={<SiteProject />} />
+          <Route path="/MappingProject" element={<MappingProject />} />
+          <Route path="/RastProject" element={<RastProject />} />
+          <Route path="/SystemsProject" element={<SystemsProject />} />
+        </Routes>
+      </div>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-export default function RastProject() {
+export default function MappingProject() {
     return (
         <div>upcoming link</div>
     );

@@ -1,17 +1,26 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import "../style.css";
-import { useState } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import SplitText from "gsap/SplitText";
-
-import * as THREE from "three";
-import FOG from 'vanta/dist/vanta.fog.min';
+import { useNavigate } from "react-router-dom";
+import {
+  navigateWithViewTransition,
+  projectDirections,
+  resetPageScroll
+} from "../utils/viewTransitions";
 
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 export default function MainWebsite() {
+  const navigate = useNavigate();
+  const scrollLetters = [..."SCROLL"];
+
+  useEffect(() => {
+    resetPageScroll();
+  }, []);
+
   useEffect(() => {
   console.log(`
     ██████╗ ██╗      ██████╗ ███╗   ██╗██████╗ ███████╗
@@ -33,154 +42,81 @@ export default function MainWebsite() {
 
 
   //const Items = ["blonde Interactive"]; --probably can add this bottom left? maybe...
-  const ContactItems = [
-    {
-      label: "pedroramosm22@gmail.com",
-      icon: "/gmail.svg",
-      link: "mailto:pedroramosm22@gmail.com"
-    },
-    {
-      label: "LinkedIn",
-      icon: "/LinkedIn.svg",
-      link: "https://www.linkedin.com/in/pedro-ramos-b74a10258/"
-    },
-    {
-     label: "GitHub",
-     icon: "/Github.svg",
-     link: "https://github.com/blondedkar"
-    }
-  ]; 
-
-  const Projects = ["Self", "CPU Rasterizer", "World-Space Mapping", "Modular Systems"]
+  const Projects = [
+    {title: "Self", path:"/SiteProject"}, 
+    {title: "CPU Rasterizer", path:"/RastProject"}, 
+    {title: "World-Space Mapping", path: "/MappingProject"}, 
+    {title: "Modular Systems", path: "/SystemsProject"}];
   const ProjectsHeaderRef = useRef<HTMLHeadingElement>(null); 
-  const TopBarRef = useRef<HTMLDivElement>(null);
-  const DividerWrapperRef = useRef<SVGSVGElement>(null);
-  const DividerRef = useRef<SVGPathElement>(null);
   const HeroRef = useRef<HTMLHeadingElement>(null);
-  const ScrollProgressRef = useRef<HTMLDivElement>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const ScrollLabel = useRef<HTMLButtonElement>(null);
   const BackgroundRef = useRef<HTMLDivElement>(null);
-  const VantaEffect = useRef<any>(null);
-
-  
 
   useEffect(() => {
-  const topBar = TopBarRef.current;
-  const svg = DividerWrapperRef.current;
-  const path = DividerRef.current;
+  if (!ScrollLabel.current) return;
 
-  if (!topBar || !svg || !path) return;
+  const ctx = gsap.context(() => {
+    const word = ScrollLabel.current!.querySelector(".ScrollPromptWord");
+    const letters = ScrollLabel.current!.querySelectorAll(".ScrollPromptLetter");
 
-  const BaseY = 20.5;
-  const MaxHeight = 5;
+    if (!word || !letters.length) return;
 
-  let TargetX = 50;
-  let TargetH = 0;
-
-  let CurrentX = 50;
-  let CurrentH = 0;
-
-  let RafId = 0;
-
-  const Clamp = (Value: number, Min: number, Max: number) =>
-    Math.max(Min, Math.min(Max, Value));
-
-  const Draw = () => {
-  CurrentX += (TargetX - CurrentX) * 0.35;
-  CurrentH += (TargetH - CurrentH) * 0.35;
-
-  const x = CurrentX;
-
-  const halfWidth = 4;
-  const left = Math.max(x - halfWidth, 0);
-  const right = Math.min(x + halfWidth, 100);
-
-  const peakY = BaseY - CurrentH;
-  
-  /*quick mafs*/
-  const d = ` 
-    M 0 ${BaseY}
-    L ${left} ${BaseY}
-    C ${left + 2} ${BaseY}
-      ${x - 2} ${peakY}
-      ${x} ${peakY}
-    C ${x + 2} ${peakY}
-      ${right - 2} ${BaseY}
-      ${right} ${BaseY}
-    L 100 ${BaseY}
-  `;
-
-  path.setAttribute("d", d);
-
-    RafId = requestAnimationFrame(Draw);
-  };
-
-  const Start = () => {
-    if (!RafId) RafId = requestAnimationFrame(Draw);
-  };
-
-  const Stop = () => {
-    if (RafId) cancelAnimationFrame(RafId);
-    RafId = 0;
-  };
-
-  const HandleMouseMove = (e: MouseEvent) => {
-    const rect = topBar.getBoundingClientRect();
-
-    const relativeX = e.clientX - rect.left;
-    const relativeY = e.clientY - rect.top;
-
-    const xPercent = (relativeX / rect.width) * 100;
-    TargetX = Clamp(xPercent, 0, 100);
-
-    const fromBottom = rect.height - relativeY;
-    const height = Clamp(fromBottom * 0.25, 0, MaxHeight);
-    TargetH = height;
-
-    Start();
-  };
-
-  const HandleMouseLeave = () => {
-    TargetH = 0;
-
-    gsap.to({}, {
-      duration: 0.5,
-      onComplete: () => {
-        Stop();
-        path.setAttribute("d", `M0 ${BaseY} L100 ${BaseY}`);
-      }
-    });
-  };
-
-  topBar.addEventListener("mousemove", HandleMouseMove);
-  topBar.addEventListener("mouseleave", HandleMouseLeave);
-
-  return () => {
-    topBar.removeEventListener("mousemove", HandleMouseMove);
-    topBar.removeEventListener("mouseleave", HandleMouseLeave);
-    Stop();
-    };
-  }, 
-[]);
-
-
-  useEffect(() => {
-    if (!TopBarRef.current) return;
-
-    gsap.set(TopBarRef.current, {
-      y: -80,
-      opacity: 0
+    gsap.set(word, {
+      transformPerspective: 1000,
+      transformOrigin: "center center"
     });
 
-    gsap.to(TopBarRef.current, {
+    const tl = gsap.timeline({
+      repeat: -1,
+      repeatDelay: 0.7
+    });
+
+    tl.to(letters, {
+      y: -12,
+      duration: 0.22,
+      ease: "power2.out",
+      stagger: 0.045
+    });
+
+    tl.to(letters, {
       y: 0,
-      opacity: 1,
-      duration: 1,
-      ease: "power4.out"
+      duration: 0.28,
+      ease: "bounce.out",
+      stagger: 0.045
     });
 
-  }, []);
+    tl.to(word, {
+      rotationY: -90,
+      z: 16,
+      duration: 0.32,
+      ease: "power2.in"
+    }, "+=0.1");
+
+    tl.to(word, {
+      rotationY: -180,
+      z: 0,
+      duration: 0.3,
+      ease: "power2.inOut"
+    });
+
+    tl.to(word, {
+      rotationY: -90,
+      z: 16,
+      duration: 0.34,
+      ease: "power2.inOut"
+    }, "+=0.08");
+
+    tl.to(word, {
+      rotationY: 0
+      ,
+      z: 0,
+      duration: 0.34,
+      ease: "power2.out"
+    });
+  }, ScrollLabel);
+
+  return () => ctx.revert();
+}, []);
 
   useEffect(() => {
   if (!HeroRef.current) return;
@@ -211,41 +147,12 @@ export default function MainWebsite() {
     gsap.set(FullStack, { y: -25 });
     gsap.set(Developer, { y: 25 });
     gsap.set(Technical, { x: -40 });
-
-    const StartFog = () => {
-    if (!BackgroundRef.current) return;
-
-    VantaEffect.current = FOG({
-      el: BackgroundRef.current,
-      THREE: THREE,
-      highlightColor: 0xffffff,
-      midtoneColor: 0xffffff,
-      lowlightColor: 0x4ea5ac,
-      baseColor: 0xd4dbdb,
-      blurFactor: 0.67,
-      speed: 3,
-      zoom: 1
-    });
-
-    const canvas = BackgroundRef.current?.querySelector("canvas");
-
-    if (canvas) {
-      gsap.set(canvas, { opacity: 0 });
-
-      gsap.to(canvas, {
-        opacity: 1,
-        duration: 1,
-        ease: "sine.out"
-      });
-    }
-  };
+    gsap.set(ScrollLabel.current, { y: 18 });
 
     const Letters = Writer?.textContent?.split("") || [];
     Writer!.innerHTML = Letters.map(l => `<span class="TypeLetter">${l}</span>`).join("");
     const TypeLetters = HeroRef.current!.querySelectorAll(".TypeLetter");
     gsap.set(TypeLetters, { opacity: 0 });
-
-    tl.call(StartFog)
 
    tl.set(HeroRef.current, {
       opacity: 1,
@@ -417,55 +324,6 @@ export default function MainWebsite() {
 
 }, []);
 
-  useEffect(() => {
-  if (!ScrollProgressRef.current) return;
-
-  ScrollTrigger.create({
-    start: 0,
-    end: "max",
-    scrub: true,
-
-    onUpdate: (self) => {
-      gsap.set(ScrollProgressRef.current, {
-        scaleX: self.progress
-      });
-    }
-  });
-
-}, []);
-
-  useEffect(() => {
-  if (!TopBarRef.current) return;
-
-  gsap.set(TopBarRef.current, {
-    clipPath: "circle(0% at calc(100% - 30px) 25px)",
-    opacity: 0,
-    rotationX: -20,
-    rotationY: 15,
-    transformOrigin: "calc(100% - 30px) 25px",
-    transformStyle: "preserve-3d"
-  });
-}, []);
-
- useEffect(() => {
-  if (!TopBarRef.current) return;
-
-  gsap.to(TopBarRef.current, {
-    clipPath: menuOpen
-      ? "circle(200% at calc(100% - 30px) 25px)"
-      : "circle(0% at calc(100% - 30px) 25px)",
-
-    opacity: menuOpen ? 1 : 0,
-
-    rotationX: menuOpen ? 0 : -20,
-    rotationY: menuOpen ? 0 : 15,
-
-    duration: 0.8,
-    ease: "power4.out",
-    delay: menuOpen ? 0.1 : 0
-  });
-
-}, [menuOpen]);
 
 useEffect(() => {
 
@@ -491,31 +349,31 @@ useEffect(() => {
 
 }, []);
 
-useEffect(() => {
+// useEffect(() => {
 
-  const folders = document.querySelectorAll(".ProjectFolder");
+//   const folders = document.querySelectorAll(".ProjectFolder");
 
-  const handleMove = (e: MouseEvent) => {
-    const x = e.clientX / window.innerWidth - 0.5;
-    const y = e.clientY / window.innerHeight - 0.5;
+//   const handleMove = (e: MouseEvent) => {
+//     const x = e.clientX / window.innerWidth - 0.5;
+//     const y = e.clientY / window.innerHeight - 0.5;
 
-    folders.forEach((folder, i) => {
-      gsap.to(folder, {
-        rotateY: x * 10,
-        rotateX: -y * 10,
-        x: x * 20 * (i % 2 === 0 ? 1 : -1),
-        y: y * 20,
-        duration: 0.6,
-        ease: "power2.out"
-      });
-    });
-  };
+//     folders.forEach((folder, i) => {
+//       gsap.to(folder, {
+//         rotateY: x * 10,
+//         rotateX: -y * 10,
+//         x: x * 20 * (i % 2 === 0 ? 1 : -1),
+//         y: y * 20,
+//         duration: 0.6,
+//         ease: "power2.out"
+//       });
+//     });
+//   };
 
-  window.addEventListener("mousemove", handleMove);
+//   window.addEventListener("mousemove", handleMove);
 
-  return () => window.removeEventListener("mousemove", handleMove);
+//   return () => window.removeEventListener("mousemove", handleMove);
 
-}, []);
+// }, []);
 
 useEffect(() => {
 
@@ -588,21 +446,26 @@ useEffect(() => {
 useEffect(() => {
   const ctx = gsap.context(() => {
     const folders = gsap.utils.toArray<HTMLElement>(".ProjectFolder");
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: ".ProjectsSection",
+        start: "top 75%",
+        end: "center 20%",
+        scrub: true,
+      }
+    });
+
     folders.forEach((folder, i) => {
       const isLeft = i % 2 === 0;
 
-      gsap.from(folder, {
-        x: isLeft ? -300 : 300,
+      tl.from(folder, {
+        x: isLeft ? -200 : 200,
         opacity: 0,
-        rotateY: isLeft ? -20 : 20,
-        ease: "quad-in",
-        scrollTrigger: {
-          trigger: ".ProjectsSection",
-          start: "top 90%",
-          end: "top 60%",
-          scrub: 0.4,
-        }
-      });
+        rotateY: isLeft ? -15 : 15,
+        ease: "none",
+        duration: 1
+      }, i * 0.25);
     });
   });
 
@@ -611,45 +474,20 @@ useEffect(() => {
 
 useEffect(() => {
   if (!ScrollLabel.current) return;
-
+  
   const el = ScrollLabel.current;
 
-  gsap.set(el, {
-    x: 50
-  })
-
   gsap.to(el, {
-    scale: 0,
-    duration: 1,
+    opacity: 0,
+    ease: "none",
     scrollTrigger: {
       start: 0,
-      end: 200,
-      scrub: false,
+      end: 260,
+      scrub: true,
     }
   });
 }, []);
 
-// useEffect(() => {
-//   if (!BackgroundRef.current) return;
-
-//   VantaEffect.current = FOG({
-//     el: BackgroundRef.current,
-//     THREE: THREE,
-
-//     highlightColor: 0xffffff,
-//     midtoneColor: 0xffffff,
-//     lowlightColor: 0x4ea5ac,
-//     baseColor: 0xd4dbdb,
-//     blurFactor: 0.67,
-//     speed: 3,
-//     zoom: 1
-//   });
-
-  
-//   return () => {
-//     VantaEffect.current?.destroy();
-//   };
-// }, []);
 
 
 
@@ -658,156 +496,20 @@ useEffect(() => {
 
   return (
     <div ref={BackgroundRef} className="MainWrapper">
-      <div className="ScrollProgressBar" ref={ScrollProgressRef}></div>
-        <svg> {/*credit to the guy on youtube, ill have to find him again */} 
-          <filter id="displacementFilter">
-              <feTurbulence type="turbulence" 
-                  baseFrequency="0.01" 
-                  numOctaves="2" 
-                  result="turbulence" />
-      
-              <feDisplacementMap in="SourceGraphic"
-                  in2="turbulence"    
-                              scale="200" xChannelSelector="R" yChannelSelector="G" />
-          </filter>
-          </svg>
-      {/* top bar */}
-      <nav>
-        <button
-          className="MenuButton"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          <svg
-            viewBox="0 0 310 259.34375"
-            stroke="currentColor"
-            strokeWidth="49"
-            strokeLinecap="round"
-            strokeLinejoin="miter"
-            className="MenuIcon"
-          >
-            <path d="M 19.668179 229.66275 H 270.31428" />
-            <path d="M 19.668179 129.66275 H 270.31428" />
-            <path d="M 19.668179 29.66275 H 270.31428" />
-          </svg>
-        </button>
-
-        <div
-          ref={TopBarRef}
-          className={`TopBar ${menuOpen ? "Open" : ""}`}
-        >
-
-          {/* logo */}
-          <div className="TopBarLogoContainer">
-            <div id="MainNavLogo" className="Logo">
-              <img src="/logo.svg" alt="Logo" />
-            </div>
-          </div>
-
-          {/* links */}
-          <ul className="TopBarContactContainer">
-            {ContactItems.map((Item, Index) => (
-              <li className="ContactItem" key={Item.label}>
-
-                <img
-                  src={Item.icon}
-                  alt={Item.label}
-                  className={`ContactIcon ${
-                    Item.label === "pedroramosm22@gmail.com"
-                      ? "gmail"
-                      : ""
-                  }`}
-                />
-
-                <a
-                  href={Item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="AnimatedTextContainer ContactLink"
-                >
-                  <div className="top">
-                    {[...Item.label].map((Letter, i) => (
-                      <span
-                        key={i}
-                        className="topLetter"
-                        style={{
-                          transitionDelay: `${i * 0.02}s`,
-                        }}
-                      >
-                        {Letter === " "
-                          ? "\u00A0"
-                          : Letter}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="bottom">
-                    {[...Item.label].map((Letter, i) => (
-                      <span
-                        key={i}
-                        className="bottomLetter"
-                        style={{
-                          transitionDelay: `${i * 0.02}s`,
-                        }}
-                      >
-                        {Letter === " "
-                          ? "\u00A0"
-                          : Letter}
-                      </span>
-                    ))}
-                  </div>
-                </a>
-
-                {Index < ContactItems.length - 1 && (
-                  <span className="ContactDivider" />
-                )}
-
-              </li>
-            ))}
-          </ul>
-
-          {/* divider path */}
-          <div className="TopBarDividerWrapper">
-            <mask id="dividerMask">
-              <svg
-                ref={DividerWrapperRef}
-                className="TopBarDivider"
-                preserveAspectRatio="none"
-                viewBox="0 0 100 20"
-              >
-                <path
-                  ref={DividerRef}
-                  d="M0 20.5 L100 20.5"
-                  stroke="#87a5a8"
-                  strokeWidth="2"
-                  fill="none"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
-            </mask>
-          </div>
-
-        </div>
-
-        <div className={`MobileSidebar ${menuOpen ? "open" : ""}`}>
-          {ContactItems.map((Item) => (
-            <a
-              key={Item.label}
-              href={Item.link}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {Item.label}
-            </a>
-          ))}
-        </div>
-
-      </nav>
-
       <div className="MainContentArea">
         <main>
           <section className="HeroContainer">
             <button ref={ScrollLabel} id="ScrollLabel">
-              Scroll ↓
+              <span className="ScrollPromptWord" aria-label="Scroll down">
+                {scrollLetters.map((letter, index) => (
+                  <span key={index} className="ScrollPromptLetter">
+                    {letter}
+                  </span>
+                ))}
+              </span>
+              <span className="ScrollPromptArrow" aria-hidden="true">
+                ↓
+              </span>
             </button>
 
 
@@ -838,10 +540,26 @@ useEffect(() => {
 
               <div className="ProjectsGrid">
                 {Projects.map((project, i) => (
-                  <a className="ProjectFolder" data-project={project} key={i}>
+                  <a
+                    className="ProjectFolder"
+                    data-project={project.title}
+                    href={project.path}
+                    key={i}
+                    onClick={(event) => {
+                      event.preventDefault();
+
+                      const direction = projectDirections[project.path];
+                      if (!direction) {
+                        navigate(project.path);
+                        return;
+                      }
+
+                      navigateWithViewTransition(navigate, project.path, direction);
+                    }}
+                  >
                     <div className="ProjectImage" />
                     <h2 className="ProjectTitle">
-                      {[...project].map((letter, idx) => (
+                      {[...project.title].map((letter, idx) => (
                         <span key={idx} className="TitleChar">
                           {letter === " " ? "\u00A0" : letter}
                         </span>
@@ -850,6 +568,11 @@ useEffect(() => {
                   </a>
                 ))}
               </div>
+            </section>
+
+            <section className="UpcomingProjects"> 
+              <span className="FeaturedWord">New Projects</span>{" "}
+              <span className="ProjectsWord">Coming Soon</span>
             </section>
           </section>
         </main>

@@ -1,0 +1,213 @@
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 760ms;
+  animation-timing-function: cubic-bezier(0.64, 0.02, 0.3, 1);
+  animation-fill-mode: both;
+  transform-origin: center center;
+  will-change: transform, opacity, filter;
+}
+
+html::before {
+  content: "";
+  position: fixed;
+  inset: -14%;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 9999;
+  background:
+    radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.34), transparent 34%),
+    radial-gradient(circle at 22% 92%, rgba(212, 219, 219, 0.26), transparent 30%),
+    radial-gradient(circle at 78% 90%, rgba(78, 165, 172, 0.18), transparent 30%),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(212, 219, 219, 0.12) 48%,
+      rgba(78, 165, 172, 0.08) 100%
+    );
+  filter: blur(28px) saturate(108%);
+  transform: translate3d(0, 52px, 0) scale(1.04);
+}
+
+html.vt-up::before,
+html.vt-right::before,
+html.vt-down::before,
+html.vt-left::before {
+  animation: vt-fog-veil 760ms ease-out both;
+}
+
+html.vt-up::view-transition-old(root) {
+  animation-name: vt-old-down;
+}
+
+html.vt-up::view-transition-new(root) {
+  animation-name: vt-new-from-top;
+}
+
+html.vt-right::view-transition-old(root) {
+  animation-name: vt-old-left;
+}
+
+html.vt-right::view-transition-new(root) {
+  animation-name: vt-new-from-right;
+}
+
+html.vt-down::view-transition-old(root) {
+  animation-name: vt-old-up;
+}
+
+html.vt-down::view-transition-new(root) {
+  animation-name: vt-new-from-bottom;
+}
+
+html.vt-left::view-transition-old(root) {
+  animation-name: vt-old-right;
+}
+
+html.vt-left::view-transition-new(root) {
+  animation-name: vt-new-from-left;
+}
+
+@keyframes vt-old-up {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0px);
+  }
+
+  to {
+    opacity: 0.62;
+    transform: translate3d(0, -100%, 0) scale(1.035);
+    filter: blur(18px);
+  }
+}
+
+@keyframes vt-old-down {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0px);
+  }
+
+  to {
+    opacity: 0.62;
+    transform: translate3d(0, 100%, 0) scale(1.035);
+    filter: blur(18px);
+  }
+}
+
+@keyframes vt-old-left {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0px);
+  }
+
+  to {
+    opacity: 0.62;
+    transform: translate3d(-100%, 0, 0) scale(1.03);
+    filter: blur(18px);
+  }
+}
+
+@keyframes vt-old-right {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0px);
+  }
+
+  to {
+    opacity: 0.62;
+    transform: translate3d(100%, 0, 0) scale(1.03);
+    filter: blur(18px);
+  }
+}
+
+@keyframes vt-new-from-top {
+  from {
+    opacity: 0.74;
+    transform: translate3d(0, -100%, 0) scale(1.045);
+    filter: blur(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes vt-new-from-right {
+  from {
+    opacity: 0.74;
+    transform: translate3d(100%, 0, 0) scale(1.04);
+    filter: blur(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes vt-new-from-bottom {
+  from {
+    opacity: 0.74;
+    transform: translate3d(0, 100%, 0) scale(1.045);
+    filter: blur(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes vt-new-from-left {
+  from {
+    opacity: 0.74;
+    transform: translate3d(-100%, 0, 0) scale(1.04);
+    filter: blur(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes vt-fog-veil {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 58px, 0) scale(1.02);
+    filter: blur(20px) saturate(105%);
+  }
+
+  22% {
+    opacity: 0.34;
+  }
+
+  52% {
+    opacity: 0.72;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -34px, 0) scale(1.14);
+    filter: blur(42px) saturate(115%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  html.vt-up::before,
+  html.vt-right::before,
+  html.vt-down::before,
+  html.vt-left::before {
+    animation-duration: 1ms;
+  }
+}
