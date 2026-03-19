@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import "../style.css";
+import { navigateWithViewTransition } from "../utils/viewTransitions";
 
 const contactItems = [
   {
@@ -217,7 +218,7 @@ export default function GlobalChrome() {
             <button
               id="MainNavLogo"
               className="Logo GlobalLogoButton"
-              onClick={() => navigate("/home")}
+              onClick={() => navigateWithViewTransition(navigate, "/home")}
               aria-label="Go to home"
             >
               <img src="/logo.svg" alt="Logo" />
@@ -291,7 +292,14 @@ export default function GlobalChrome() {
         </div>
 
         <div className={`MobileSidebar ${menuOpen ? "open" : ""}`}>
-          <Link to="/home" onClick={() => setMenuOpen(false)}>
+          <Link
+            to="/home"
+            onClick={(event) => {
+              event.preventDefault();
+              setMenuOpen(false);
+              navigateWithViewTransition(navigate, "/home");
+            }}
+          >
             Home
           </Link>
           {contactItems.map((item) => (

@@ -3,6 +3,7 @@ import { gsap } from "gsap";
 import SplitText from "gsap/SplitText";
 import { useNavigate } from "react-router-dom";
 import "../style.css";
+import { navigateWithViewTransition } from "../utils/viewTransitions";
 
 gsap.registerPlugin(SplitText);
 
@@ -94,7 +95,7 @@ export default function Landing() {
     const tl = gsap.timeline({
       onComplete: () => {
         PlayTransition().then(() => {
-           navigate("/home");
+           navigateWithViewTransition(navigate, "/home");
         });
       }
     });
