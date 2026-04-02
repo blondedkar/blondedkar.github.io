@@ -51,8 +51,8 @@ const stackItems = [
     title: "Vite",
     description: (
       <>
-        Using <KeywordTypewriter>Vite</KeywordTypewriter> for speed, the site is
-        built on <KeywordFade>TSX</KeywordFade> so the page structure stays{" "}
+        Using <KeywordTypewriter>Vite</KeywordTypewriter> for efficiency, we're pairing with
+        <KeywordFade>TSX</KeywordFade> so the page structure stays{" "}
         <KeywordUnderline>organized</KeywordUnderline> and easy to expand.
       </>
     ),
@@ -278,23 +278,6 @@ export default function SiteProject() {
         y: 48
       });
 
-      gsap.set(".SectionHeadingRow", {
-        opacity: 0,
-        y: 36
-      });
-
-      gsap.set(".ProjectPanel", {
-        opacity: 0,
-        y: 56,
-        rotateX: -8
-      });
-
-      gsap.set(".TechBadgeCard", {
-        opacity: 0,
-        y: 42,
-        scale: 0.96
-      });
-
       const heroTimeline = gsap.timeline({
         defaults: {
           ease: "power3.out"
@@ -306,47 +289,6 @@ export default function SiteProject() {
         y: 0,
         duration: 0.8,
         stagger: 0.12
-      });
-
-      gsap.to(".TechBadgeCard", {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".ProjectHeroVisual",
-          start: "top 80%"
-        }
-      });
-
-      gsap.utils.toArray<HTMLElement>(".SectionHeadingRow").forEach((heading) => {
-        gsap.to(heading, {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: heading,
-            start: "top 82%"
-          }
-        });
-      });
-
-      gsap.utils.toArray<HTMLElement>(".ProjectPanel").forEach((panel, index) => {
-        gsap.to(panel, {
-          opacity: 1,
-          y: 0,
-          rotateX: 0,
-          duration: 0.75,
-          ease: "power3.out",
-          delay: index % 3 === 0 ? 0 : 0.06,
-          scrollTrigger: {
-            trigger: panel,
-            start: "top 88%"
-          }
-        });
       });
 
       gsap.utils.toArray<HTMLElement>(".ProjectSection").forEach((section, index, sections) => {

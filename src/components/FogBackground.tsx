@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import FOG from "vanta/dist/vanta.fog.min";
+import { usePerformanceMode } from "../hooks/usePerformanceMode";
 
-export default function FogBackground() {
+function FogCanvas() {
   const ref = useRef<HTMLDivElement | null>(null);
   const effect = useRef<any>(null);
 
@@ -10,6 +11,9 @@ export default function FogBackground() {
     const element = ref.current;
 
     if (!element) return;
+
+    element.innerHTML = "";
+    element.style.background = "transparent";
 
     const syncSize = () => {
       element.style.width = "100vw";
@@ -57,8 +61,37 @@ export default function FogBackground() {
         minHeight: "100dvh",
         overflow: "hidden",
         pointerEvents: "none",
-        zIndex: -99,
+        zIndex: 0,
       }}
     />
   );
+}
+
+function FogFallback() {
+  return (
+    <div
+      aria-hidden="true"
+      className="FogBackgroundFallback"
+      style={{
+        position: "fixed",
+        inset: "0",
+        width: "100vw",
+        height: "100dvh",
+        minHeight: "100dvh",
+        overflow: "hidden",
+        pointerEvents: "none",
+        zIndex: 0,
+      }}
+    />
+  );
+}
+
+export default function FogBackground() {
+  const performanceMode = usePerformanceMode();
+
+  if (performanceMode === "reduced") {
+    return <FogFallback />;
+  }
+
+  return <FogCanvas key="fog-canvas" />;
 }

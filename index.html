@@ -3,6 +3,28 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="text/javascript">
+      // Restore client-side routes after GitHub Pages serves 404.html.
+      (function (l) {
+        if (l.search[1] !== "/") {
+          return;
+        }
+
+        const decoded = l.search
+          .slice(1)
+          .split("&")
+          .map(function (segment) {
+            return segment.replace(/~and~/g, "&");
+          })
+          .join("?");
+
+        window.history.replaceState(
+          null,
+          "",
+          l.pathname.slice(0, -1) + decoded + l.hash
+        );
+      })(window.location);
+    </script>
     <title>blonde Interactive</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">

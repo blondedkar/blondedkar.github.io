@@ -52,7 +52,7 @@ export default function MainWebsite() {
   const ScrollLabel = useRef<HTMLButtonElement>(null);
   const BackgroundRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+useEffect(() => {
   if (!ScrollLabel.current) return;
 
   const ctx = gsap.context(() => {
@@ -147,6 +147,7 @@ export default function MainWebsite() {
     gsap.set(FullStack, { y: -25 });
     gsap.set(Developer, { y: 25 });
     gsap.set(Technical, { x: -40 });
+
     gsap.set(ScrollLabel.current, { y: 18 });
 
     const Letters = Writer?.textContent?.split("") || [];
@@ -488,11 +489,6 @@ useEffect(() => {
   });
 }, []);
 
-
-
-
-
-/*organize connections */
 
   return (
     <div ref={BackgroundRef} className="MainWrapper">

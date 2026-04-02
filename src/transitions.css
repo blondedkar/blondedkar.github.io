@@ -98,3 +98,8 @@
     animation-duration: 1ms;
   }
 }
+
+html.performance-mode-reduced .AppTransitionShell::before,
+html.performance-mode-reduced .AppTransitionShell::after {
+  display: none;
+}

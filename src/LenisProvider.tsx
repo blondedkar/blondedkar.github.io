@@ -15,13 +15,16 @@ export default function SmoothScrollProvider({
 
     (window as any).lenis = LenisInstance;
 
-    gsap.ticker.add((Time) => {
+    const tick = (Time: number) => {
       LenisInstance.raf(Time * 1000);
-    });
+    };
+
+    gsap.ticker.add(tick);
 
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      gsap.ticker.remove(tick);
       LenisInstance.destroy();
       delete (window as any).lenis;
     };

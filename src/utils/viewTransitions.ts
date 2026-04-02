@@ -1,6 +1,7 @@
 import type { NavigateFunction } from "react-router-dom";
 import { flushSync } from "react-dom";
 import { gsap } from "gsap";
+import { getPerformanceMode } from "./performanceMode";
 
 const PENDING_SCROLL_TARGET_KEY = "pendingScrollTarget";
 let isTransitioning = false;
@@ -17,6 +18,8 @@ type LenisController = {
   stop?: () => void;
   start?: () => void;
 };
+
+/*foggy type transition idk  i tried */
 
 export const projectDirections: Record<string, string> = {
   "/SiteProject": "down",
@@ -141,18 +144,19 @@ function createTransitionState() {
 
 async function animateOutgoingElements(elements: HTMLElement[]) {
   if (!elements.length) return;
+  const isReduced = getPerformanceMode() === "reduced";
 
   const states = elements.map(() => createTransitionState());
 
   await new Promise<void>((resolve) => {
     gsap.to(elements, {
-      x: (index) => states[index].x,
-      y: (index) => states[index].y,
-      rotate: (index) => states[index].rotate,
-      scale: (index) => states[index].scaleOut,
-      opacity: (index) => Math.max(0.08, 0.22 - index * 0.01),
-      filter: (index) => `blur(${states[index].blurOut}px)`,
-      duration: 0.42,
+      x: (index) => (isReduced ? states[index].x * 0.45 : states[index].x),
+      y: (index) => (isReduced ? states[index].y * 0.45 : states[index].y),
+      rotate: (index) => (isReduced ? states[index].rotate * 0.5 : states[index].rotate),
+      scale: (index) => (isReduced ? 0.86 : states[index].scaleOut),
+      opacity: (index) => (isReduced ? Math.max(0.16, 0.28 - index * 0.012) : Math.max(0.08, 0.22 - index * 0.01)),
+      filter: isReduced ? "none" : (index) => `blur(${states[index].blurOut}px)`,
+      duration: isReduced ? 0.3 : 0.42,
       ease: "power2.inOut",
       stagger: {
         each: 0.028,
@@ -165,16 +169,17 @@ async function animateOutgoingElements(elements: HTMLElement[]) {
 
 async function animateIncomingElements(elements: HTMLElement[]) {
   if (!elements.length) return;
+  const isReduced = getPerformanceMode() === "reduced";
 
   const states = elements.map(() => createTransitionState());
 
   gsap.set(elements, {
-    x: (index) => states[index].x * -0.65,
-    y: (index) => states[index].y * -0.65,
-    rotate: (index) => states[index].rotate * -0.8,
-    scale: (index) => states[index].scaleIn,
+    x: (index) => (isReduced ? states[index].x * -0.28 : states[index].x * -0.65),
+    y: (index) => (isReduced ? states[index].y * -0.28 : states[index].y * -0.65),
+    rotate: (index) => (isReduced ? states[index].rotate * -0.35 : states[index].rotate * -0.8),
+    scale: (index) => (isReduced ? 1.03 : states[index].scaleIn),
     opacity: 0,
-    filter: (index) => `blur(${states[index].blurIn}px)`
+    filter: isReduced ? "none" : (index) => `blur(${states[index].blurIn}px)`
   });
 
   await new Promise<void>((resolve) => {
@@ -184,8 +189,8 @@ async function animateIncomingElements(elements: HTMLElement[]) {
       rotate: 0,
       scale: 1,
       opacity: 1,
-      filter: "blur(0px)",
-      duration: 0.52,
+      filter: "none",
+      duration: isReduced ? 0.34 : 0.52,
       ease: "power3.out",
       stagger: {
         each: 0.022,

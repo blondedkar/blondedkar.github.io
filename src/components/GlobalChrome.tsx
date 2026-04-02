@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import "../style.css";
 import { navigateWithViewTransition } from "../utils/viewTransitions";
+import { usePerformanceMode } from "../hooks/usePerformanceMode";
 
 const contactItems = [
   {
@@ -28,8 +29,11 @@ export default function GlobalChrome() {
   const topBarRef = useRef<HTMLDivElement>(null);
   const dividerWrapperRef = useRef<SVGSVGElement>(null);
   const dividerRef = useRef<SVGPathElement>(null);
+  const dividerMaskRef = useRef<SVGPathElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const performanceMode = usePerformanceMode();
+  const isReduced = performanceMode === "reduced";
 
   const hideChrome = location.pathname === "/landing";
 
@@ -38,42 +42,14 @@ export default function GlobalChrome() {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (hideChrome || !topBarRef.current) return;
-
-    gsap.set(topBarRef.current, {
-      clipPath: "circle(0% at calc(100% - 30px) 25px)",
-      opacity: 0,
-      rotationX: -20,
-      rotationY: 15,
-      transformOrigin: "calc(100% - 30px) 25px",
-      transformStyle: "preserve-3d"
-    });
-  }, [hideChrome]);
-
-  useEffect(() => {
-    if (hideChrome || !topBarRef.current) return;
-
-    gsap.to(topBarRef.current, {
-      clipPath: menuOpen
-        ? "circle(200% at calc(100% - 30px) 25px)"
-        : "circle(0% at calc(100% - 30px) 25px)",
-      opacity: menuOpen ? 1 : 0,
-      rotationX: menuOpen ? 0 : -20,
-      rotationY: menuOpen ? 0 : 15,
-      duration: 0.8,
-      ease: "power4.out",
-      delay: menuOpen ? 0.1 : 0
-    });
-  }, [hideChrome, menuOpen]);
-
-  useEffect(() => {
-    if (hideChrome) return;
+    if (hideChrome || isReduced) return;
 
     const topBar = topBarRef.current;
     const svg = dividerWrapperRef.current;
     const path = dividerRef.current;
+    const maskPath = dividerMaskRef.current;
 
-    if (!topBar || !svg || !path) return;
+    if (!topBar || !svg || !path || !maskPath) return;
 
     const baseY = 20.5;
     const maxHeight = 5;
@@ -110,6 +86,7 @@ export default function GlobalChrome() {
       `;
 
       path.setAttribute("d", d);
+      maskPath.setAttribute("d", d);
       rafId = requestAnimationFrame(draw);
     };
 
@@ -142,7 +119,9 @@ export default function GlobalChrome() {
         duration: 0.5,
         onComplete: () => {
           stop();
-          path.setAttribute("d", `M0 ${baseY} L100 ${baseY}`);
+          const resetPath = `M0 ${baseY} L100 ${baseY}`;
+          path.setAttribute("d", resetPath);
+          maskPath.setAttribute("d", resetPath);
         }
       });
     };
@@ -155,7 +134,7 @@ export default function GlobalChrome() {
       topBar.removeEventListener("mouseleave", handleMouseLeave);
       stop();
     };
-  }, [hideChrome]);
+  }, [hideChrome, isReduced]);
 
   useEffect(() => {
     if (hideChrome || !progressRef.current) return;
@@ -198,6 +177,7 @@ export default function GlobalChrome() {
           className="MenuButton"
           onClick={() => setMenuOpen((open) => !open)}
           aria-label="Toggle contact menu"
+          aria-expanded={menuOpen}
         >
           <svg
             viewBox="0 0 310 259.34375"
@@ -213,7 +193,10 @@ export default function GlobalChrome() {
           </svg>
         </button>
 
-        <div ref={topBarRef} className={`TopBar ${menuOpen ? "Open" : ""}`}>
+        <div
+          ref={topBarRef}
+          className={`TopBar ${menuOpen ? "Open" : ""} ${isReduced ? "ReducedMotion" : ""}`}
+        >
           <div className="TopBarLogoContainer">
             <button
               id="MainNavLogo"
@@ -271,23 +254,37 @@ export default function GlobalChrome() {
           </ul>
 
           <div className="TopBarDividerWrapper">
-            <mask id="dividerMask">
-              <svg
-                ref={dividerWrapperRef}
-                className="TopBarDivider"
-                preserveAspectRatio="none"
-                viewBox="0 0 100 20"
-              >
-                <path
-                  ref={dividerRef}
-                  d="M0 20.5 L100 20.5"
-                  stroke="#87a5a8"
-                  strokeWidth="2"
-                  fill="none"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
-            </mask>
+            <svg className="TopBarMaskDefs" aria-hidden="true" focusable="false">
+              <defs>
+                <mask id="dividerMask" maskUnits="objectBoundingBox" maskContentUnits="userSpaceOnUse">
+                  <rect x="0" y="0" width="100" height="20" fill="white" />
+                  <path
+                    ref={dividerMaskRef}
+                    d="M0 20.5 L100 20.5"
+                    stroke="black"
+                    strokeWidth="2"
+                    fill="none"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                </mask>
+              </defs>
+            </svg>
+
+             <svg
+              ref={dividerWrapperRef}
+              className="TopBarDivider"
+              preserveAspectRatio="none"
+              viewBox="0 0 100 20"
+            >
+              <path
+                ref={dividerRef}
+                d="M0 20.5 L100 20.5"
+                stroke="#87a5a8"
+                strokeWidth="2"
+                fill="none"
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
           </div>
         </div>
 

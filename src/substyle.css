@@ -5,7 +5,7 @@
   --background-color: #c2c9c9a6;
   --text-color: #111;
 }
-
+/*base styles for all sites that arent the main page (this should technically be named style.css but whatever)*/
 html,
 body,
 #root {
@@ -63,6 +63,8 @@ body {
 
 .ProjectEyebrow {
   margin: 0 0 0.75rem;
+  display: inline-block;
+  padding: 0.2rem 0.45rem;
   text-transform: uppercase;
   letter-spacing: 0.24em;
   font-size: 0.82rem;
@@ -419,6 +421,10 @@ body {
   margin: 0;
 }
 
+.ProjectPanel .ProjectEyebrow {
+  margin: 0 0 0.75rem;
+}
+
 .ProjectPanel p {
   font-size: 1.03rem;
   line-height: 1.7;
@@ -454,6 +460,282 @@ body {
   justify-content: center;
 }
 
+.DocsProjectPage {
+  width: min(1320px, calc(100vw - 3rem));
+}
+
+.DocsProjectHero {
+  min-height: min(88vh, 980px);
+}
+
+.DocsHeroVisual {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-height: auto;
+  align-items: stretch;
+}
+
+.DocsStatCard {
+  min-height: 220px;
+}
+
+.DocsStatValue {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  max-width: 24ch;
+}
+
+.DocsShell {
+  display: grid;
+  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+}
+
+.DocsSidebar {
+  position: sticky;
+  top: 6.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.DocsSidebarCard {
+  overflow: hidden;
+}
+
+.DocsSidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.DocsSidebarLink {
+  color: inherit;
+  text-decoration: none;
+  font-size: 1rem;
+  line-height: 1.4;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(49, 86, 90, 0.12);
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.DocsSidebarLink:hover,
+.DocsSidebarLink:focus-visible {
+  color: var(--accent-color);
+  border-color: rgba(110, 171, 177, 0.45);
+  transform: translateX(6px);
+}
+
+.DocsMetaList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+}
+
+.DocsMetaRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.DocsMetaLabel {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #31565a;
+}
+
+.DocsMetaValue {
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.DocsMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.DocsSection {
+  scroll-margin-top: 7rem;
+}
+
+.DocsSection .ProjectSectionTitle {
+  max-width: 14ch;
+}
+
+.DocsGridWide {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.DocsContentCard h3 {
+  margin: 0 0 0.8rem;
+  font-size: 1.3rem;
+  line-height: 1.2;
+}
+
+.DocsStageTimeline {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.DocsReferencePage {
+  padding-top: clamp(4rem, 7vw, 6rem);
+}
+
+.DocsReferenceHero {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: clamp(3rem, 7vw, 5rem);
+  max-width: 880px;
+}
+
+.DocsReferenceHero .ProjectLead {
+  margin: 0;
+  max-width: 64ch;
+}
+
+.DocsReferenceLead {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 66ch;
+}
+
+.DocsReferenceBadgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.DocsReferenceBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(49, 86, 90, 0.16);
+  background: rgba(255, 255, 255, 0.46);
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.DocsReferenceShell {
+  align-items: start;
+}
+
+.DocsReferenceSection {
+  margin-top: 0;
+  margin-bottom: clamp(2.5rem, 6vw, 4rem);
+  scroll-margin-top: 7rem;
+}
+
+.DocsReferenceIndex {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.DocsReferenceEntries {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.DocsReferenceTable {
+  padding: 0;
+  overflow: hidden;
+}
+
+.DocsReferenceRow {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+  gap: 1.25rem;
+  padding: 1.35rem 1.5rem;
+  border-top: 1px solid rgba(49, 86, 90, 0.08);
+}
+
+.DocsReferenceRow:first-child {
+  border-top: 0;
+}
+
+.DocsReferenceKey {
+  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #31565a;
+}
+
+.DocsReferenceValue {
+  line-height: 1.7;
+}
+
+.DocsReferenceListCard h3 {
+  margin: 0 0 0.9rem;
+}
+
+.DocsReferenceList {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  line-height: 1.55;
+}
+
+.DocsReferenceEntryHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.4rem 1.5rem 0.8rem;
+}
+
+.DocsReferenceEntryHeader h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.DocsReferenceType {
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #31565a;
+}
+
+.DocsReferenceSignature {
+  display: block;
+  margin: 0 1.5rem 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: rgba(17, 17, 17, 0.05);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.DocsTypeLink {
+  color: var(--accent-color);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.DocsTypeLink:hover,
+.DocsTypeLink:focus-visible {
+  color: #31565a;
+}
+
+.DocsReferenceTable > p {
+  margin: 0;
+  padding: 0 1.5rem 1.45rem;
+}
+
 @media (max-width: 1024px) {
   .ProjectHero {
     grid-template-columns: 1fr;
@@ -465,6 +747,21 @@ body {
   }
 
   .BuildTimeline {
+    grid-template-columns: 1fr;
+  }
+
+  .DocsShell {
+    grid-template-columns: 1fr;
+  }
+
+  .DocsSidebar {
+    position: relative;
+    top: auto;
+  }
+
+  .DocsStageTimeline,
+  .DocsGridWide,
+  .DocsReferenceIndex {
     grid-template-columns: 1fr;
   }
 }
@@ -494,8 +791,48 @@ body {
     overflow: visible;
   }
 
+  .DocsProjectPage {
+    width: min(100vw - 1.5rem, 100%);
+  }
+
+  .DocsReferenceRow {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .DocsReferenceEntryHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .TechColumnLeft,
   .TechColumnRight {
     padding-top: 0;
   }
+}
+
+html.performance-mode-reduced .ProjectPage,
+html.performance-mode-reduced .ProjectSection {
+  perspective: none !important;
+  transform-style: flat !important;
+}
+
+html.performance-mode-reduced .TechBadgeCard,
+html.performance-mode-reduced .ProjectPanel,
+html.performance-mode-reduced .ScrollProgressBar {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  box-shadow: 0 12px 28px rgba(17, 17, 17, 0.08);
+}
+
+html.performance-mode-reduced .TechBadgeCard,
+html.performance-mode-reduced .ProjectPanel,
+html.performance-mode-reduced .SectionHeadingRow {
+  will-change: auto !important;
+}
+
+html.performance-mode-reduced .TechLogoImage,
+html.performance-mode-reduced .SiteTitle {
+  filter: none !important;
 }
