@@ -23,9 +23,7 @@ type LenisController = {
 
 export const projectDirections: Record<string, string> = {
   "/SiteProject": "down",
-  "/RastProject": "right",
-  "/MappingProject": "up",
-  "/SystemsProject": "left"
+  "/RastProject": "right"
 };
 
 function getLenis() {

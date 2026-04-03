@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import type { CSSProperties, PointerEvent } from "react";
 import { gsap } from "gsap";
 import "../style.css";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -10,12 +11,57 @@ import {
   resetPageScroll
 } from "../utils/viewTransitions";
 
+const projectCards = [
+  {
+    title: "Self",
+    path: "/SiteProject",
+    tech: [
+      { label: "HTML", src: "/HTML.png" },
+      { label: "TypeScript", src: "/TypeScript.png" },
+      { label: "CSS", src: "/CSS.png" },
+      { label: "Vite", src: "/Vite.png" },
+      { label: "React", src: "/React.png" },
+      { label: "GSAP", src: "/GSAP.png" }
+    ]
+  },
+  {
+    title: "CPU Rasterizer",
+    path: "/RastProject",
+    tech: [
+      { label: "Luau", src: "/Luau.svg" },
+      { label: "Lua", src: "/Lua.svg" }
+    ]
+  }
+] as const;
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 export default function MainWebsite() {
   const navigate = useNavigate();
   const scrollLetters = [..."SCROLL"];
+
+  const handleProjectPointerMove = (
+    event: PointerEvent<HTMLAnchorElement>
+  ) => {
+    const card = event.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const offsetX = (event.clientX - rect.left) / rect.width - 0.5;
+    const offsetY = (event.clientY - rect.top) / rect.height - 0.5;
+
+    card.style.setProperty("--parallax-x", `${offsetX * 28}px`);
+    card.style.setProperty("--parallax-y", `${offsetY * 28}px`);
+    card.style.setProperty("--parallax-rotate-x", `${offsetY * -8}deg`);
+    card.style.setProperty("--parallax-rotate-y", `${offsetX * 10}deg`);
+  };
+
+  const resetProjectPointer = (event: PointerEvent<HTMLAnchorElement>) => {
+    const card = event.currentTarget;
+
+    card.style.setProperty("--parallax-x", "0px");
+    card.style.setProperty("--parallax-y", "0px");
+    card.style.setProperty("--parallax-rotate-x", "0deg");
+    card.style.setProperty("--parallax-rotate-y", "0deg");
+  };
 
   useEffect(() => {
     resetPageScroll();
@@ -39,14 +85,6 @@ export default function MainWebsite() {
     `);
   }, []);
 
-
-
-  //const Items = ["blonde Interactive"]; --probably can add this bottom left? maybe...
-  const Projects = [
-    {title: "Self", path:"/SiteProject"}, 
-    {title: "CPU Rasterizer", path:"/RastProject"}, 
-    {title: "World-Space Mapping", path: "/MappingProject"}, 
-    {title: "Modular Systems", path: "/SystemsProject"}];
   const ProjectsHeaderRef = useRef<HTMLHeadingElement>(null); 
   const HeroRef = useRef<HTMLHeadingElement>(null);
   const ScrollLabel = useRef<HTMLButtonElement>(null);
@@ -474,6 +512,44 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
+  const ctx = gsap.context(() => {
+    const folders = gsap.utils.toArray<HTMLElement>(".ProjectFolder");
+
+    folders.forEach((folder) => {
+      const icons = folder.querySelectorAll<HTMLElement>(".ProjectTechIcon");
+      const techCount = Number(folder.dataset.techCount ?? "0");
+
+      gsap.to(folder, {
+        "--scroll-parallax-y": techCount >= 6 ? "10px" : "8px",
+        ease: "none",
+        scrollTrigger: {
+          trigger: folder,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true
+        }
+      });
+
+      icons.forEach((icon, index) => {
+        const xDirection = index % 2 === 0 ? -1 : 1;
+        gsap.to(icon, {
+          "--icon-scroll-x": `${xDirection * (techCount >= 6 ? 8 : 6)}px`,
+          ease: "none",
+          scrollTrigger: {
+            trigger: folder,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true
+          }
+        });
+      });
+    });
+  });
+
+  return () => ctx.revert();
+}, []);
+
+useEffect(() => {
   if (!ScrollLabel.current) return;
   
   const el = ScrollLabel.current;
@@ -535,12 +611,15 @@ useEffect(() => {
               </div>
 
               <div className="ProjectsGrid">
-                {Projects.map((project, i) => (
+                {projectCards.map((project, i) => (
                   <a
                     className="ProjectFolder"
                     data-project={project.title}
+                    data-tech-count={project.tech.length}
                     href={project.path}
                     key={i}
+                    onPointerMove={handleProjectPointerMove}
+                    onPointerLeave={resetProjectPointer}
                     onClick={(event) => {
                       event.preventDefault();
 
@@ -554,6 +633,21 @@ useEffect(() => {
                     }}
                   >
                     <div className="ProjectImage" />
+                    <div className="ProjectTechGrid" aria-hidden="true">
+                      {project.tech.map((icon, iconIndex) => (
+                        <span
+                          key={`${project.title}-${icon.label}`}
+                          className="ProjectTechIcon"
+                          style={
+                            {
+                              "--icon-index": iconIndex
+                            } as CSSProperties
+                          }
+                        >
+                          <img src={icon.src} alt="" />
+                        </span>
+                      ))}
+                    </div>
                     <h2 className="ProjectTitle">
                       {[...project.title].map((letter, idx) => (
                         <span key={idx} className="TitleChar">

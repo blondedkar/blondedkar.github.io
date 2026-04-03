@@ -596,6 +596,26 @@ body {
   max-width: 880px;
 }
 
+.DocsReferenceHeroWithVisual {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+  max-width: none;
+}
+
+.RasterHeroVisual {
+  min-height: 420px;
+}
+
+.RasterHeroVisual .TechColumnLeft {
+  padding-top: 4rem;
+}
+
+.RasterHeroVisual .TechColumnRight {
+  padding-top: 8rem;
+}
+
 .DocsReferenceHero .ProjectLead {
   margin: 0;
   max-width: 64ch;
@@ -808,6 +828,15 @@ body {
   .TechColumnLeft,
   .TechColumnRight {
     padding-top: 0;
+  }
+
+  .RasterHeroVisual {
+    min-height: 0;
+  }
+
+  .DocsReferenceHeroWithVisual {
+    grid-template-columns: 1fr;
+    align-items: start;
   }
 }
 

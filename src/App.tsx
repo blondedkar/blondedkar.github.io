@@ -3,9 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Landing from "./pages/Landing";
 import MainWebsite from "./pages/MainSite";
 import SiteProject from "./pages/SiteProject";
-import MappingProject from "./pages/MappingProject";
 import RastProject from "./pages/RastProject";
-import SystemsProject from "./pages/SystemsProject";
 import FogBackground from "./components/FogBackground";
 import GlobalChrome from "./components/GlobalChrome";
 import "./transitions.css";
@@ -29,9 +27,7 @@ export default function App() {
             <Route path="/landing" element={<Landing />} />
             <Route path="/home" element={<MainWebsite />} />
             <Route path="/SiteProject" element={<SiteProject />} />
-            <Route path="/MappingProject" element={<MappingProject />} />
             <Route path="/RastProject" element={<RastProject />} />
-            <Route path="/SystemsProject" element={<SystemsProject />} />
           </Routes>
         </div>
       </div>

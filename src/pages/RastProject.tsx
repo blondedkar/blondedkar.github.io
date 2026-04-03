@@ -63,6 +63,11 @@ function SplitPromptLabel({ label }: { label: string }) {
   );
 }
 
+const heroTechColumns = {
+  left: [{ label: "Luau", logo: "/Luau.svg" }],
+  right: [{ label: "Lua", logo: "/Lua.svg" }]
+};
+
 const typeReferenceLinks: Record<string, string> = {
   canvas:
     "https://github.com/Ethanthegrand/CanvasDraw/blob/main/src/FastCanvas.luau",
@@ -328,6 +333,36 @@ export default function RastProject() {
     if (!pageRef.current) return;
 
     const ctx = gsap.context(() => {
+      gsap.fromTo(
+        ".TechColumnLeft",
+        { yPercent: 0 },
+        {
+          yPercent: -12,
+          ease: "none",
+          scrollTrigger: {
+            trigger: pageRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true
+          }
+        }
+      );
+
+      gsap.fromTo(
+        ".TechColumnRight",
+        { yPercent: 0 },
+        {
+          yPercent: 12,
+          ease: "none",
+          scrollTrigger: {
+            trigger: pageRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true
+          }
+        }
+      );
+
       gsap.set(".DocsReferenceHero > *", {
         opacity: 0,
         y: 32
@@ -350,30 +385,64 @@ export default function RastProject() {
 
   return (
     <main ref={pageRef} className="ProjectPage DocsProjectPage DocsReferencePage">
-      <section id="project-hero" className="DocsReferenceHero">
-        <p className="ProjectEyebrow">Reference / Rendering Class</p>
-        <h1 className="SiteTitle">Rasterizer</h1>
-        <div className="DocsReferenceBadgeRow">
-        </div>
-        <p className="ProjectLead">
-          Photoshop style emulator built completely CPU bound (by constraint, not idea). Project is completely written in Luau with the brush techniques being mathematically compatible in other programs.
-        </p>
+      <section id="project-hero" className="DocsReferenceHero DocsReferenceHeroWithVisual ProjectHero">
+        <div className="ProjectHeroCopy">
+          <p className="ProjectEyebrow">Reference / Rendering Class</p>
+          <h1 className="SiteTitle">Rasterizer</h1>
+          <div className="DocsReferenceBadgeRow">
+          </div>
+          <p className="ProjectLead">
+            Photoshop style emulator built completely CPU bound (by constraint, not idea). Project is completely written in Luau with the brush techniques being mathematically compatible in other programs.
+          </p>
 
-        <div className="ProjectActionRow">
-          <Link
-            to="/home"
-            className="ProjectAction AnimatedTextContainer"
-            onClick={(event) => {
-              event.preventDefault();
-              navigateWithViewTransition(
-                navigate,
-                "/home",
-                getOppositeDirection(projectDirections["/RastProject"])
-              );
-            }}
-          >
-            <AnimatedActionLabel label="Back to Projects" />
-          </Link>
+          <div className="ProjectActionRow">
+            <Link
+              to="/home"
+              className="ProjectAction AnimatedTextContainer"
+              onClick={(event) => {
+                event.preventDefault();
+                navigateWithViewTransition(
+                  navigate,
+                  "/home",
+                  getOppositeDirection(projectDirections["/RastProject"])
+                );
+              }}
+            >
+              <AnimatedActionLabel label="Back to Projects" />
+            </Link>
+          </div>
+        </div>
+
+        <div className="ProjectHeroVisual RasterHeroVisual" aria-hidden="true">
+          <div className="TechColumn TechColumnLeft">
+            {heroTechColumns.left.map((item) => (
+              <article key={item.label} className="TechBadgeCard">
+                <div className="TechBadgeMark">{item.label}</div>
+                <div className="TechLogoPlaceholder">
+                  <img
+                    src={item.logo}
+                    alt={`${item.label} logo`}
+                    className="TechLogoImage"
+                  />
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="TechColumn TechColumnRight">
+            {heroTechColumns.right.map((item) => (
+              <article key={item.label} className="TechBadgeCard">
+                <div className="TechBadgeMark">{item.label}</div>
+                <div className="TechLogoPlaceholder">
+                  <img
+                    src={item.logo}
+                    alt={`${item.label} logo`}
+                    className="TechLogoImage"
+                  />
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
