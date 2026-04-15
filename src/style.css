@@ -724,6 +724,14 @@ nav .MenuButton {
   animation: slowDrift 20s ease-in-out infinite alternate;
 }
 
+.ProjectFolder[data-project="Skubal Portfolio Project"] .ProjectImage {
+  background:
+    radial-gradient(circle at 22% 24%, rgba(255, 255, 255, 0.8), transparent 28%),
+    radial-gradient(circle at 78% 32%, rgba(110, 171, 177, 0.55), transparent 34%),
+    linear-gradient(135deg, rgba(135, 165, 168, 0.28), rgba(255, 255, 255, 0.08));
+  animation: slowDrift 20s ease-in-out infinite alternate;
+}
+
 .ProjectFolder:nth-child(1) { grid-column: span 2; }
 .ProjectFolder:nth-child(4) { grid-column: span 2; }
 
@@ -1053,6 +1061,10 @@ nav .MenuButton {
   color: rgb(0, 0, 0);
   overflow: hidden;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.ProjectFolder[data-project="Skubal Portfolio Project"] .ProjectTitle {
+  font-size: clamp(14px, 1.35vw, 20px);
 }
 
 .TitleChar {
