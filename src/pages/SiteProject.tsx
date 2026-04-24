@@ -95,7 +95,6 @@ const stackItems = [
 
 const buildSteps = [
   {
-    eyebrow: "",
     title: "Landing Experience",
     description: (
       <>
@@ -107,7 +106,6 @@ const buildSteps = [
     )
   },
   {
-    eyebrow: "",
     title: "Interactive Main Page",
     description: (
       <>
@@ -118,7 +116,6 @@ const buildSteps = [
     )
   },
   {
-    eyebrow: "",
     title: "Project Storytelling",
     description: (
       <>
@@ -405,7 +402,6 @@ export default function SiteProject() {
     <main ref={pageRef} className="ProjectPage">
       <section id="project-hero" ref={heroRef} className="ProjectHero">
         <div className="ProjectHeroCopy">
-          <p className="ProjectEyebrow">Case Study / Portfolio Build</p>
           <h1 className="SiteTitle">This Website</h1>
           <p className="ProjectLead">
             This project is the portfolio site itself: a{" "}
@@ -479,7 +475,6 @@ export default function SiteProject() {
 
       <section className="ProjectSection">
         <div className="SectionHeadingRow">
-          <p className="ProjectEyebrow">Overview</p>
           <h2 className="ProjectSectionTitle">What I wanted this site to do</h2>
         </div>
 
@@ -509,7 +504,6 @@ export default function SiteProject() {
 
       <section className="ProjectSection">
         <div className="SectionHeadingRow">
-          <p className="ProjectEyebrow">Stack</p>
           <h2 className="ProjectSectionTitle">How it was built</h2>
         </div>
 
@@ -539,14 +533,12 @@ export default function SiteProject() {
 
       <section className="ProjectSection">
         <div className="SectionHeadingRow">
-          <p className="ProjectEyebrow">Build Process</p>
           <h2 className="ProjectSectionTitle">From intro animation to project grid</h2>
         </div>
 
         <div className="BuildTimeline">
           {buildSteps.map((step, index) => (
             <article key={index} className="ProjectPanel TimelineCard">
-              <span className="TimelineIndex">{step.eyebrow}</span>
               <h3>{step.title}</h3>
               <p>{step.description}</p>
             </article>

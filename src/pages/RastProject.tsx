@@ -124,67 +124,6 @@ function renderLinkedText(text: string) {
   });
 }
 
-function renderMethodSummary(summary: string) {
-  const italicNotePattern = /\*([^*]+)\*/g;
-  const normalized = summary.replace(
-    /(Requires[^.]*\.)/g,
-    "__BOLD__$1__/BOLD__"
-  ).replace(
-    /(Applies[^.]*\.)/g,
-    "__BOLD__$1__/BOLD__"
-  ).replace(
-    /(Optional[^.]*\.)/g,
-    "__ITALIC__$1__/ITALIC__"
-  ).replace(
-    /(optionally[^.]*\.)/g,
-    "__ITALIC__$1__/ITALIC__"
-  );
-
-  const segments = normalized.split(/(__BOLD__.*?__\/BOLD__|__ITALIC__.*?__\/ITALIC__)/g);
-
-  return segments.map((segment, index) => {
-    if (!segment) return null;
-
-    if (segment.startsWith("__BOLD__") && segment.endsWith("__/BOLD__")) {
-      const text = segment.slice("__BOLD__".length, -"__/BOLD__".length);
-      return <strong key={`bold-${index}`}>{text}</strong>;
-    }
-
-    if (segment.startsWith("__ITALIC__") && segment.endsWith("__/ITALIC__")) {
-      const text = segment.slice("__ITALIC__".length, -"__/ITALIC__".length);
-      return <em key={`italic-${index}`}>{text}</em>;
-    }
-
-    const pieces: React.ReactNode[] = [];
-    let lastIndex = 0;
-    let matchIndex = 0;
-
-    segment.replace(italicNotePattern, (match, inner, offset) => {
-      if (offset > lastIndex) {
-        pieces.push(
-          <span key={`text-${index}-${matchIndex}`}>
-            {segment.slice(lastIndex, offset)}
-          </span>
-        );
-      }
-
-      pieces.push(<em key={`note-${index}-${matchIndex}`}>{inner}</em>);
-      lastIndex = offset + match.length;
-      matchIndex += 1;
-      return match;
-    });
-
-    if (lastIndex < segment.length) {
-      pieces.push(
-        <span key={`text-tail-${index}`}>{segment.slice(lastIndex)}</span>
-      );
-    }
-
-    return <span key={`segment-${index}`}>{pieces}</span>;
-  });
-}
-
-
 const memberGroups = [
   {
     title: "Related services/API",
@@ -240,60 +179,176 @@ const propertyEntries = [
   }
 ];
 
-const methodEntries = [
+const apiSections = [
   {
-    name: "Round()",
-    signature: "Round(CurrentCanvas: canvas, Point: vector2, Thickness: number, Color: color3, Alpha: number): ()",
-    summary: "Stamps a perfectly round pixel area at the given point, at its given thickness, color blended."
+    title: "Constructor",
+    entries: [
+      {
+        name: "RoffinityCanvas.new(parent: CanvasGroup, resolution: Vector2?, canvasColour: Color3?, blur: boolean?)",
+        signatures: [
+          "RoffinityCanvas.new(parent: Instance, resolution: number | vector2?, canvasColour: color3?, blur: boolean?): canvas"
+        ],
+        summary: "Creates a canvas object within a given parent, of a given resolution no greater than 1024x1024. Optional canvas background color, and blur to indicate default roblox anti-aliasing (not suggested)."
+      }
+    ]
   },
   {
-    name: "Square()",
-    signature: "Square(CurrentCanvas: canvas, Point: vector2, Size: number, Color: color3, Alpha: number): ()",
-    summary: "Stamps a perfectly square pixel area at the given point, at its given size, color blended. *Ridges do not auto-line up when drawing*"
+    title: "Canvas Properties",
+    entries: [
+      {
+        name: "Prefix: self, or Canvas",
+        items: [
+          "Frame, Container, ImageLabel, EditableImage",
+          "Buffer",
+          "AutoRender",
+          "AutoRenderFpsLimit",
+          "NeedsRender",
+          "CanvasColour",
+          "ClearAlpha",
+          "Resolution, CurrentResX, CurrentResY",
+          "Width, Height",
+          "OnRendered"
+        ],
+        summary: "Accessible properties pertaining to the canvas."
+      }
+    ]
   },
   {
-    name: "Flat()",
-    signature: "Flat(CurrentCanvas: canvas, Point: vector2, Rx: number, Ry: number, Color: color3, Alpha: number): ()",
-    summary: "Stamps a flat, ellipse-like pixel area at the given point, at its given size, color blended. Requires two radii."
+    title: "Pixel Read / Write API",
+    entries: [
+      { name: "SetPixel",signatures: ["Canvas:SetPixel(point: vector2, color: color3, alpha: number?): ()"], summary: "Internally writes a pixel to the buffer. Not suggested for work, this is an internal method but can be utilized."},
+      { name: "SetRGB", signatures: ["Canvas:SetRGB(x: number, y: number, r: number, g: number, b: number): ()"], summary: "Writes pixel data with color values. Not suggested unless working explicitly without alpha." },
+      { name: "SetRGBA", signatures: ["Canvas:SetRGBA(x: number, y: number, r: number, g: number, b: number, a: number?): ()"], summary: "Writes pixel data data with color value and alpha. This is the optimal pixel writing method." },
+      { name: "SetAlpha", signatures: ["Canvas:SetAlpha(x: number, y: number, alpha: number): ()"], summary: "Sets the alpha value for a pixel, can overwrite existing alpha, and pixels." },
+      { name: "SetU32", signatures: ["Canvas:SetU32(x: number, y: number, colourU32: number): ()"], summary: "Writes a 32-bit color value to the buffer, not suggested for work, this is an internal method." },
+      { name: "GetPixel", signatures: ["Canvas:GetPixel(point: vector2): color3, number"], summary: "Reads and returns a pixel's RGBA and Alpha value. Not suggested for work." },
+      { name: "GetRGB", signatures: ["Canvas:GetRGB(x: number, y: number): number, number, number"], summary: "Reads and returns a pixel's RGB values" },
+      { name: "GetRGBA", signatures: ["Canvas:GetRGBA(x: number, y: number): number, number, number, number"], summary: "Reads and returns a pixel's RGBA values" },
+      { name: "GetAlpha", signatures: ["Canvas:GetAlpha(x: number, y: number): number"], summary: "Reads and returns a pixel's alpha value" },
+      { name: "GetU32", signatures: ["Canvas:GetU32(x: number, y: number): number"], summary: "Reads and returns a pixel's 32-bit color value" }
+    ]
   },
   {
-    name: "Glow()",
-    signature: "Glow(CurrentCanvas: canvas, Point: vector2, Thickness: number, Color: color3): ()",
-    summary: "Stamps a glow effect via alpha gradient around Point, thickness controls the radius of the glow, color controls the color of the glow at its core. Currently cannot blend color."
+    title: "Buffer API",
+    entries: [
+      {
+        name: "SetBuffer",
+        signatures: ["Canvas:SetBuffer(pixelBuffer: buffer, x: number?, y: number?, bufferWidth: number?, bufferHeight: number?): ()"]
+      },
+      {
+        name: "GetBuffer",
+        signatures: ["Canvas:GetBuffer(x: number?, y: number?, width: number?, height: number?): buffer"]
+      },
+      {
+        name: "Format",
+        items: [
+          "RGBA bytes",
+          "4 bytes per pixel",
+          "Offset formula: ((y - 1) * width + (x - 1)) * 4"
+        ]
+      }
+    ]
   },
   {
-    name: "Blend()",
-    signature: "Blend(CurrentCanvas: canvas, Point: vector2, Thickness: number, Strength: number, Color: color3?, Alpha: number?): ()",
-    summary: "Blends the RGBA of existing pixels within the thickness of the brush area relative to the point. Optional color and alpha parameters to bias the blend towards a specific color or opacity."
+    title: "Fill / Clear",
+    entries: [
+      { name: "Fill", signatures: ["Canvas:Fill(color: color3, alpha: number?): ()"] },
+      { name: "FillRGBA", signatures: ["Canvas:FillRGBA(r: number, g: number, b: number, a: number?): ()"] },
+      { name: "Clear", signatures: ["Canvas:Clear(): ()"] },
+      { name: "SetClearRGBA", signatures: ["Canvas:SetClearRGBA(r: number, g: number, b: number, a: number): ()"] }
+    ]
   },
   {
-    name: "Smudge()",
-    signature: "Smudge(CurrentCanvas: canvas, StartPoint: vector2, Thickness: number): ()",
-    summary: "Creates a thumb smudge effect by sampling pixels at starting point, then blending them along the direction of the users current stroke. Thickness controls the radius of the smudge area, strength is controlled by input speed."
+    title: "Drawing",
+    entries: [
+      { name: "DrawLine", signatures: ["Canvas:DrawLine(pointA: vector2, pointB: vector2, color: color3, thickness: number?, roundedCaps: boolean?): ()"] },
+      { name: "DrawRectangle", signatures: ["Canvas:DrawRectangle(pointA: vector2, pointB: vector2, color: color3, alpha: number?, fill: boolean?): ()"] },
+      { name: "DrawRect", signatures: ["Canvas:DrawRect(x: number, y: number, width: number, height: number, color: color3, alpha: number?): ()"] },
+      {
+        name: "Current limitations",
+        items: [
+          "roundedCaps is accepted but not fully implemented",
+          "Line thickness is square-stamped rather than anti-aliased"
+        ]
+      }
+    ]
   },
   {
-    name: "Darken()",
-    signature: "Darken(CurrentCanvas: canvas, Point: vector2, Thickness: number, Color: color3?, Alpha: number?): ()",
-    summary: "Darkens the pixels within the specified area towards RGB(0,0,0), optionally biased by a color and alpha to control the strength and color of the darkening effect (subtle)."
+    title: "Sizing",
+    entries: [
+      { name: "Resize", signatures: ["Canvas:Resize(newResolutionOrWidth: number | vector2, height: number?): ()"], items: ["Changes displayed frame size"] },
+      { name: "SetResolution", signatures: ["Canvas:SetResolution(newResolutionOrWidth: number | vector2, height: number?): ()"], items: ["Changes internal buffer resolution", "Recreates the buffer and EditableImage"] }
+    ]
   },
   {
-    name: "Lighten()",
-    signature: "Lighten(CurrentCanvas: canvas, Point: vector2, Thickness: number, Color: color3?, Alpha: number?): ()",
-    summary: "Lightens the pixels within the specified area towards RGB(255,255,255), optionally biased by a color and alpha to control the strength and color of the lightening effect (subtle)."
+    title: "Rendering",
+    entries: [
+      { name: "Render", signatures: ["Canvas:Render(): ()"] },
+      { name: "AutoRender", items: ["Canvas.AutoRender"] },
+      { name: "AutoRenderFpsLimit", items: ["Canvas.AutoRenderFpsLimit"] },
+      { name: "NeedsRender", items: ["Canvas.NeedsRender"] },
+      { name: "OnRendered", items: ["Canvas.OnRendered"] },
+      { name: "SetBlur", signatures: ["Canvas:SetBlur(enabled: boolean): ()"] },
+      { name: "SetStretchToFit", signatures: ["Canvas:SetStretchToFit(enabled: boolean): ()"] }
+    ]
   },
   {
-    name: "Eraser()",
-    signature: "Eraser(CurrentCanvas: canvas, Point: vector2, Thickness: number, Opacity: number?): ()",
-    summary: "Erases the pixels within the specified area, creating a transparent effect. Thickness controls the radius of the erasing area. Applies the Round brush shape."
+    title: "Input Helpers",
+    entries: [
+      { name: "ViewportToCanvasPoint", signatures: ["Canvas:ViewportToCanvasPoint(screenPosition: vector2): vector2"] },
+      { name: "GetMousePoint", signatures: ["Canvas:GetMousePoint(): vector2"] },
+      { name: "MouseIsOnTop", signatures: ["Canvas:MouseIsOnTop(): boolean"] }
+    ]
   },
   {
-    name: "Ignore()",
-    signature: "Ignore(CurrentCanvas: canvas, Point: vector2): ()",
-    summary: "Ignores the pixels within the specified area, leaving them unchanged. On continous strokes, it creates an effect where the brush appears to go below pixels that arent clear. Applies current brush parameters (Thickness, Color, Alpha)."
+    title: "Color Utilities",
+    entries: [
+      { name: "GetColourU32", signatures: ["RoffinityCanvas.GetColourU32(r: number, g: number, b: number, a: number?): number", "Canvas:GetColourU32(r: number, g: number, b: number, a: number?): number"] },
+      { name: "GetRGBAFromColourU32", signatures: ["RoffinityCanvas.GetRGBAFromColourU32(colourU32: number): number, number, number, number", "Canvas:GetRGBAFromColourU32(colourU32: number): number, number, number, number"] },
+      { name: "GetRGBFromColourU32", signatures: ["RoffinityCanvas.GetRGBFromColourU32(colourU32: number): number, number, number", "Canvas:GetRGBFromColourU32(colourU32: number): number, number, number"] }
+    ]
+  },
+  {
+    title: "Lifecycle",
+    entries: [
+      {
+        name: "Destroy",
+        signatures: ["Canvas:Destroy(): ()"],
+        items: [
+          "Disconnects the heartbeat connection",
+          "Cleans up the events folder",
+          "Destroys the GUI frame",
+          "Clears EditableImage and buffer references"
+        ]
+      }
+    ]
+  },
+  {
+    title: "Performance Notes",
+    entries: [
+      {
+        name: "Guidelines",
+        items: [
+          "Prefer bulk buffer operations for large changes",
+          "Batch writes when possible",
+          "AutoRenderFpsLimit can prevent excessive rendering",
+          "Avoid reading or writing huge regions per frame unless using a preview strategy"
+        ]
+      }
+    ]
+  },
+  {
+    title: "Examples",
+    entries: [
+      { name: "Create canvas", signatures: ["local Canvas = RoffinityCanvas.new({ Parent = script.Parent, Width = 512, Height = 512 })"] },
+      { name: "Draw pixel / line / rectangle", signatures: ["Canvas:SetPixel(Vector2.new(12, 20), Color3.new(1, 0, 0), 1)", "Canvas:DrawLine(Vector2.new(1, 1), Vector2.new(128, 64), Color3.new(1, 1, 1), 3)", "Canvas:DrawRect(24, 24, 80, 40, Color3.new(0, 0, 0), 1)"] },
+      { name: "Read and modify a region", signatures: ["local Region = Canvas:GetBuffer(1, 1, 64, 64)", "Canvas:SetBuffer(Region, 96, 96, 64, 64)"] },
+      { name: "Convert mouse position to canvas pixel", signatures: ["local Point = Canvas:GetMousePoint()", "local PointFromViewport = Canvas:ViewportToCanvasPoint(UserInputService:GetMouseLocation())"] },
+      { name: "Resize display vs change resolution", signatures: ["Canvas:Resize(768, 768)", "Canvas:SetResolution(512, 512)"] },
+      { name: "Manual render loop", signatures: ["Canvas.AutoRender = false", "Canvas:SetPixel(1, 1, Color3.new(1, 1, 1), 1)", "Canvas:Render()"] }
+    ]
   }
-  
-  
-];
+] as const;
 
 export default function RastProject() {
   const pageRef = useRef<HTMLElement>(null);
@@ -387,7 +442,6 @@ export default function RastProject() {
     <main ref={pageRef} className="ProjectPage DocsProjectPage DocsReferencePage">
       <section id="project-hero" className="DocsReferenceHero DocsReferenceHeroWithVisual ProjectHero">
         <div className="ProjectHeroCopy">
-          <p className="ProjectEyebrow">Reference / Rendering Class</p>
           <h1 className="SiteTitle">Rasterizer</h1>
           <div className="DocsReferenceBadgeRow">
           </div>
@@ -448,12 +502,8 @@ export default function RastProject() {
 
       <div ref={docsShellRef} className="DocsShell DocsReferenceShell">
         <aside className="DocsSidebar">
-          <div className="ProjectPanel DocsSidebarCard">
-            <p className="ProjectEyebrow">On This Page</p>
-          </div>
-
           <div className="ProjectPanel DocsSidebarCard DocsReferenceStatusCard">
-            <p className="ProjectEyebrow">Project Facts</p>
+            <h2 className="DocsSidebarTitle">Project Facts</h2>
             <div className="DocsMetaList">
               <div className="DocsMetaRow">
                 <span className="DocsMetaLabel">Runtime</span>
@@ -480,7 +530,7 @@ export default function RastProject() {
         <div className="DocsMain">
           <section id="rast-summary" className="DocsReferenceSection">
             <div className="SectionHeadingRow">
-              <p className="ProjectEyebrow">Summary</p>
+              <h2 className="ProjectSectionTitle">Summary</h2>
             </div>
 
             <article className="ProjectPanel DocsReferenceTable">
@@ -503,7 +553,7 @@ export default function RastProject() {
 
           <section id="rast-members" className="DocsReferenceSection">
             <div className="SectionHeadingRow">
-              <p className="ProjectEyebrow">Members Index</p>
+              <h2 className="ProjectSectionTitle">Members Index</h2>
             </div>
 
             <div className="ProjectCardGrid DocsReferenceIndex">
@@ -522,7 +572,7 @@ export default function RastProject() {
 
           <section id="rast-properties" className="DocsReferenceSection">
             <div className="SectionHeadingRow">
-              <p className="ProjectEyebrow">Services</p>
+              <h2 className="ProjectSectionTitle">Services</h2>
             </div>
 
             <div className="DocsReferenceEntries">
@@ -557,20 +607,46 @@ export default function RastProject() {
 
           <section id="rast-methods" className="DocsReferenceSection">
             <div className="SectionHeadingRow">
-              <p className="ProjectEyebrow">Methods</p>
+              <h2 className="ProjectSectionTitle">API Documentation</h2>
             </div>
 
-            <div className="DocsReferenceEntries">
-              {methodEntries.map((entry) => (
-                <article key={entry.name} className="ProjectPanel DocsReferenceTable">
-                  <div className="DocsReferenceEntryHeader">
-                    <h3>{entry.name}</h3>
+            <div className="ApiDocsAccordion">
+              {apiSections.map((section) => (
+                <details key={section.title} className="ProjectPanel ApiDocsSection">
+                  <summary className="ApiDocsSummary">
+                    <span>{section.title}</span>
+                  </summary>
+
+                  <div className="ApiDocsBody">
+                    {section.entries.map((entry) => (
+                      <article key={entry.name} className="ApiDocsEntry">
+                        <h3>{entry.name}</h3>
+
+                        {"summary" in entry && entry.summary ? (
+                          <p className="ApiDocsEntrySummary">{entry.summary}</p>
+                        ) : null}
+
+                        {"signatures" in entry && entry.signatures ? (
+                          <div className="ApiDocsSignatures">
+                            {entry.signatures.map((signature) => (
+                              <code key={signature} className="DocsReferenceSignature ApiDocsSignature">
+                                {renderLinkedSignature(signature)}
+                              </code>
+                            ))}
+                          </div>
+                        ) : null}
+
+                        {"items" in entry && entry.items ? (
+                          <ul className="DocsReferenceList ApiDocsList">
+                            {entry.items.map((item) => (
+                              <li key={item}>{item}</li>
+                            ))}
+                          </ul>
+                        ) : null}
+                      </article>
+                    ))}
                   </div>
-                  <code className="DocsReferenceSignature">
-                    {renderLinkedSignature(entry.signature)}
-                  </code>
-                  <p>{renderMethodSummary(entry.summary)}</p>
-                </article>
+                </details>
               ))}
             </div>
           </section>
@@ -579,7 +655,6 @@ export default function RastProject() {
 
           <section id="rast-changelog" className="DocsReferenceSection">
             <div className="SectionHeadingRow">
-              <p className="ProjectEyebrow">Changelog</p>
               <h2 className="ProjectSectionTitle">Revision history</h2>
             </div>
 
@@ -594,6 +669,13 @@ export default function RastProject() {
                 <div className="DocsReferenceKey">v0.2</div>
                 <div className="DocsReferenceValue">
                   Fixed a critical memory leak pertaining to user input.
+                </div>
+              </div>
+
+               <div className="DocsReferenceRow">
+                <div className="DocsReferenceKey">v1.0</div>
+                <div className="DocsReferenceValue">
+                  Began Roffinity.
                 </div>
               </div>
             </article>

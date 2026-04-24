@@ -99,7 +99,6 @@ const stackItems = [
 
 const buildSteps = [
   {
-    eyebrow: "",
     title: "Layout First",
     description: (
       <>
@@ -110,7 +109,6 @@ const buildSteps = [
     )
   },
   {
-    eyebrow: "",
     title: "Flexible Framework Choice",
     description: (
       <>
@@ -122,7 +120,6 @@ const buildSteps = [
     )
   },
   {
-    eyebrow: "",
     title: "Motion and Presentation",
     description: (
       <>
@@ -355,7 +352,6 @@ export default function SkubalProject() {
     <main ref={pageRef} className="ProjectPage">
       <section id="project-hero" ref={heroRef} className="ProjectHero">
         <div className="ProjectHeroCopy">
-          <p className="ProjectEyebrow">Case Study / Portfolio Build</p>
           <h1 className="SiteTitle">Skubal Portfolio Project</h1>
           <p className="ProjectLead">
             This project is a <KeywordFade>portfolio-style</KeywordFade> build
@@ -425,7 +421,6 @@ export default function SkubalProject() {
 
       <section className="ProjectSection">
         <div className="SectionHeadingRow">
-          <p className="ProjectEyebrow">Overview</p>
           <h2 className="ProjectSectionTitle">What this project was trying to do</h2>
         </div>
 
@@ -453,7 +448,6 @@ export default function SkubalProject() {
 
       <section className="ProjectSection">
         <div className="SectionHeadingRow">
-          <p className="ProjectEyebrow">Stack</p>
           <h2 className="ProjectSectionTitle">How it was built</h2>
         </div>
 
@@ -483,14 +477,12 @@ export default function SkubalProject() {
 
       <section className="ProjectSection">
         <div className="SectionHeadingRow">
-          <p className="ProjectEyebrow">Build Process</p>
           <h2 className="ProjectSectionTitle">From structure to polish</h2>
         </div>
 
         <div className="BuildTimeline">
           {buildSteps.map((step, index) => (
             <article key={index} className="ProjectPanel TimelineCard">
-              <span className="TimelineIndex">{step.eyebrow}</span>
               <h3>{step.title}</h3>
               <p>{step.description}</p>
             </article>

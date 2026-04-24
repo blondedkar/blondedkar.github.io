@@ -31,16 +31,6 @@ const projectCards = [
       { label: "Luau", src: "/Luau.svg" },
       { label: "Lua", src: "/Lua.svg" }
     ]
-  },
-  {
-    title: "Skubal Portfolio Project",
-    path: "/SkubalProject",
-    tech: [
-      { label: "HTML", src: "/HTML.png" },
-      { label: "TypeScript", src: "/TypeScript.png" },
-      { label: "NextJS", src: "/NextJS.webp" },
-      { label: "GSAP", src: "/GSAP.png" }
-    ]
   }
 ] as const;
 
