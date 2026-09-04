@@ -352,7 +352,6 @@ const apiSections = [
 
 export default function RastProject() {
   const pageRef = useRef<HTMLElement>(null);
-  const docsShellRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   useLayoutEffect(() => {
@@ -498,54 +497,21 @@ export default function RastProject() {
         </div>
       </section>
 
-      <div ref={docsShellRef} className="DocsShell DocsReferenceShell">
-        <aside className="DocsSidebar">
-          <div className="ProjectPanel DocsSidebarCard DocsReferenceStatusCard">
-            <h2 className="DocsSidebarTitle">Project Facts</h2>
-            <div className="DocsMetaList">
-              <div className="DocsMetaRow">
-                <span className="DocsMetaLabel">Runtime</span>
-                <span className="DocsMetaValue">Luau</span>
-              </div>
-              <div className="DocsMetaRow">
-                <span className="DocsMetaLabel">Canvas Layer</span>
-                <span className="DocsMetaValue">
-                  {renderLinkedText("CanvasDraw + EditableImage")}
-                </span>
-              </div>
-              <div className="DocsMetaRow">
-                <span className="DocsMetaLabel">Input</span>
-                <span className="DocsMetaValue">UserInputService-driven brush system</span>
-              </div>
-              <div className="DocsMetaRow">
-                <span className="DocsMetaLabel">Persistence</span>
-                <span className="DocsMetaValue">ProfileStore-backed save data</span>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        <div className="DocsMain">
+      <div className="DocsMain">
           <section id="rast-summary" className="DocsReferenceSection">
             <div className="SectionHeadingRow">
               <h2 className="ProjectSectionTitle">Summary</h2>
             </div>
 
-            <article className="ProjectPanel DocsReferenceTable">
-              <div className="DocsReferenceRow">
-                <div className="DocsReferenceKey">Description</div>
-                <div className="DocsReferenceValue">
-                  {renderLinkedText(
-                    "Utilize CanvasDraw's API to render pixels onto an EditableImage to emulate rasterized drawing. Incorporates various brush algorithms, multiple layers, saving/loading efficient flood fills, color picking, color blending, far beyond the average drawing program on the platform."
-                  )}
-                </div>
-              </div>
-              <div className="DocsReferenceRow">
-                <div className="DocsReferenceKey">Responsibilities</div>
-                <div className="DocsReferenceValue">
+            <article className="ProjectPanel">
+              <p>
+                {renderLinkedText(
+                  "Utilize CanvasDraw's API to render pixels onto an EditableImage to emulate rasterized drawing. Incorporates various brush algorithms, multiple layers, saving/loading efficient flood fills, color picking, color blending, far beyond the average drawing program on the platform."
+                )}{" "}
+                <strong>
                   Efficiently map pixels to user inputted positions, provide a perfectly smooth, and detailed experience.
-                </div>
-              </div>
+                </strong>
+              </p>
             </article>
           </section>
 
@@ -556,13 +522,13 @@ export default function RastProject() {
 
             <div className="ProjectCardGrid DocsReferenceIndex">
               {memberGroups.map((group) => (
-                <article key={group.title} className="ProjectPanel DocsReferenceListCard">
+                <article key={group.title} className="ProjectPanel DocsReferenceParagraphCard">
                   <h3>{group.title}</h3>
-                  <ul className="DocsReferenceList">
+                  <div className="DocsReferenceParagraphs">
                     {group.items.map((item) => (
-                      <li key={item}>{item}</li>
+                      <p key={item}>{item}</p>
                     ))}
-                  </ul>
+                  </div>
                 </article>
               ))}
             </div>
@@ -635,11 +601,11 @@ export default function RastProject() {
                         ) : null}
 
                         {"items" in entry && entry.items ? (
-                          <ul className="DocsReferenceList ApiDocsList">
+                          <div className="DocsReferenceParagraphs ApiDocsParagraphs">
                             {entry.items.map((item) => (
-                              <li key={item}>{item}</li>
+                              <p key={item}>{item}</p>
                             ))}
-                          </ul>
+                          </div>
                         ) : null}
                       </article>
                     ))}
@@ -648,8 +614,6 @@ export default function RastProject() {
               ))}
             </div>
           </section>
-
-          
 
           <section id="rast-changelog" className="DocsReferenceSection">
             <div className="SectionHeadingRow">
@@ -670,7 +634,7 @@ export default function RastProject() {
                 </div>
               </div>
 
-               <div className="DocsReferenceRow">
+              <div className="DocsReferenceRow">
                 <div className="DocsReferenceKey">v1.0</div>
                 <div className="DocsReferenceValue">
                   Began Roffinity.
@@ -695,7 +659,6 @@ export default function RastProject() {
               <AnimatedActionLabel label="Back to Projects" />
             </Link>
           </section>
-        </div>
       </div>
     </main>
   );
