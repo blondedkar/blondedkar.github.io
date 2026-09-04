@@ -443,8 +443,6 @@ export default function RastProject() {
       <section id="project-hero" className="DocsReferenceHero DocsReferenceHeroWithVisual ProjectHero">
         <div className="ProjectHeroCopy">
           <h1 className="SiteTitle">Rasterizer</h1>
-          <div className="DocsReferenceBadgeRow">
-          </div>
           <p className="ProjectLead">
             Photoshop style emulator built completely CPU bound (by constraint, not idea). Project is completely written in Luau with the brush techniques being mathematically compatible in other programs.
           </p>
