@@ -5,6 +5,7 @@ import MainWebsite from "./pages/MainSite";
 import SiteProject from "./pages/SiteProject";
 import RastProject from "./pages/RastProject";
 import SkubalProject from "./pages/SkubalProject";
+import ChordWrightProject from "./pages/ChordWrightProject";
 import FogBackground from "./components/FogBackground";
 import GlobalChrome from "./components/GlobalChrome";
 import "./transitions.css";
@@ -30,6 +31,7 @@ export default function App() {
             <Route path="/SiteProject" element={<SiteProject />} />
             <Route path="/RastProject" element={<RastProject />} />
             <Route path="/SkubalProject" element={<SkubalProject />} />
+            <Route path="/ChordWrightProject" element={<ChordWrightProject />} />
           </Routes>
         </div>
       </div>

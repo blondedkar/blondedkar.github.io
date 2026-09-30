@@ -732,8 +732,18 @@ nav .MenuButton {
   animation: slowDrift 20s ease-in-out infinite alternate;
 }
 
+.ProjectFolder[data-project="chordwright"] .ProjectImage {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.42) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.42) 1px, transparent 1px),
+    radial-gradient(circle at 24% 28%, rgba(255, 111, 61, 0.34), transparent 26%),
+    linear-gradient(135deg, rgba(53, 39, 78, 0.3), rgba(110, 171, 177, 0.12));
+  background-size: 42px 42px, 42px 42px, auto, auto;
+  animation: slowDrift 20s ease-in-out infinite alternate;
+}
+
 .ProjectFolder:nth-child(1) { grid-column: span 2; }
-.ProjectFolder:nth-child(4) { grid-column: span 2; }
+.ProjectFolder[data-project="chordwright"] { grid-column: span 3; }
 
 .ProjectImage {
   position: absolute;
@@ -928,6 +938,18 @@ nav .MenuButton {
   grid-row: 1;
 }
 
+.ProjectFolder[data-tech-count="1"] .ProjectTechGrid {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+.ProjectFolder[data-tech-count="1"] .ProjectTechIcon,
+.ProjectFolder[data-tech-count="1"] .ProjectTechIcon:nth-child(1) {
+  width: clamp(82px, 9vw, 138px);
+  grid-column: 1;
+  grid-row: 1;
+}
+
 .ProjectFolder[data-tech-count="6"] .ProjectTechIcon:nth-child(4) {
   transform:
     translate3d(
@@ -1094,7 +1116,7 @@ nav .MenuButton {
   }
 
   .ProjectFolder:nth-child(1),
-  .ProjectFolder:nth-child(4) {
+  .ProjectFolder[data-project="chordwright"] {
     grid-column: span 1;
   }
 }

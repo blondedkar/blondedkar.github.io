@@ -31,6 +31,13 @@ const projectCards = [
       { label: "Luau", src: "/Luau.svg" },
       { label: "Lua", src: "/Lua.svg" }
     ]
+  },
+  {
+    title: "chordwright",
+    path: "/ChordWrightProject",
+    tech: [
+      { label: "SvelteKit", src: "/Svelte.svg" }
+    ]
   }
 ] as const;
 
