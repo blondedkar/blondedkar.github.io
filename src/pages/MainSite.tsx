@@ -34,7 +34,7 @@ const projectCards = [
   },
   {
     title: "chordwright",
-    path: "/ChordWrightProject",
+    path: "/chordwright",
     tech: [
       { label: "SvelteKit", src: "/Svelte.svg" }
     ]

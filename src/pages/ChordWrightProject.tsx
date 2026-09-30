@@ -29,15 +29,6 @@ function KeywordWeight({ children }: { children: ReactNode }) {
   );
 }
 
-function KeywordUnderline({ children }: { children: ReactNode }) {
-  return (
-    <span className="AccentKeyword AccentKeywordUnderline AccentKeywordInk">
-      <span className="AccentKeywordUnderlineText">{children}</span>
-      <span className="AccentKeywordUnderlineLine" aria-hidden="true" />
-    </span>
-  );
-}
-
 function KeywordTypewriter({ children }: { children: ReactNode }) {
   return (
     <span className="AccentKeyword AccentKeywordBox AccentKeywordInk">
@@ -48,43 +39,39 @@ function KeywordTypewriter({ children }: { children: ReactNode }) {
 
 const implementationAreas = [
   {
-    title: "SvelteKit application shell",
+    title: "SvelteKit + TypeScript",
     description: (
       <>
-        SvelteKit supplies the route and rendering model for the public landing
-        page, chart library, account flow, editor, and chart viewer. That keeps
-        navigation and authenticated authoring inside one application boundary.
+        SvelteKit handles routing and server boundaries. TypeScript defines the
+        chart model shared by editor commands, persistence, and rendering.
       </>
     ),
     resourceUrl: "https://svelte.dev/docs/kit"
   },
   {
-    title: "Structured chart state",
+    title: "Object editor engine",
     description: (
       <>
-        A chart is stored as <KeywordTypewriter>musical structure</KeywordTypewriter>,
-        not as a block of spaced text. Key, tempo, chord style, sections, chord
-        positions, lyrics, and layout settings remain independently editable.
+        Sheets contain sections, lyric lines, and positioned chord nodes. Pure
+        commands add, move, delete, transpose, mirror, fork, and publish them.
       </>
     )
   },
   {
-    title: "Editor command surface",
+    title: "Konva canvas",
     description: (
       <>
-        Chord selection, click placement, drag-and-drop movement, section
-        controls, and layout changes all operate on the same chart state. The
-        rendered chart therefore remains a direct view of the current document.
+        Konva and svelte-konva provide the editor canvas for direct chord-node
+        placement without coupling document operations to the renderer.
       </>
     )
   },
   {
-    title: "Publication boundary",
+    title: "Supabase + Drizzle",
     description: (
       <>
-        Authoring is attached to an authenticated account, while browsing and
-        viewing use a separate public surface. The separation keeps editor
-        controls out of the reading path without maintaining a second chart format.
+        Supabase supplies authentication, Postgres, and storage. Drizzle owns the
+        schema and server-side data access for charts, profiles, and social data.
       </>
     )
   }
@@ -92,32 +79,27 @@ const implementationAreas = [
 
 const workflowSteps = [
   {
-    title: "Establish chart context",
+    title: "Compose",
     description: (
       <>
-        The document starts with its key, tempo, chord style, and layout. These
-        values establish the constraints used by the editor before individual
-        sections and chords are placed.
+        Create sections, paste lyric lines, then place chord nodes by click or drag.
       </>
     )
   },
   {
-    title: "Author the arrangement",
+    title: "Revise",
     description: (
       <>
-        Sections provide the structural frame. Chords are inserted or moved
-        within that frame, while the lyric panel keeps the song text visible as
-        the harmonic sequence is revised.
+        Move chords, transpose the sheet, and mirror repeated sections from one source.
       </>
     )
   },
   {
-    title: "Publish the chart",
+    title: "Save and share",
     description: (
       <>
-        Saved chart data is rendered through the library and viewer rather than
-        flattened into an editor screenshot. The published result stays readable,
-        shareable, and independent of the authoring controls.
+        Cache drafts in IndexedDB, sync private cloud drafts by revision, then publish
+        or fork a chart when it is ready.
       </>
     )
   }
@@ -181,7 +163,7 @@ function SplitPromptLabel({ label }: { label: string }) {
   );
 }
 
-export default function ChordWrightProject() {
+export default function ChordwrightProject() {
   const heroRef = useRef<HTMLElement>(null);
   const pageRef = useRef<HTMLElement>(null);
   const navigate = useNavigate();
@@ -296,15 +278,37 @@ export default function ChordWrightProject() {
       gsap.utils.toArray<HTMLElement>(".ProjectSection").forEach((section) => {
         gsap.fromTo(
           section,
-          { y: 68, rotateX: 6 },
+          { autoAlpha: 0, y: 96, rotateX: 8 },
           {
+            autoAlpha: 1,
             y: 0,
             rotateX: 0,
-            duration: 0.9,
+            duration: 1,
             ease: "power3.out",
             scrollTrigger: {
               trigger: section,
-              start: "top 84%"
+              start: "top 82%",
+              toggleActions: "play none none reverse"
+            }
+          }
+        );
+
+        const panels = section.querySelectorAll(".ProjectPanel");
+        if (!panels.length) return;
+
+        gsap.fromTo(
+          panels,
+          { autoAlpha: 0, y: 54 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.8,
+            stagger: 0.12,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: section,
+              start: "top 76%",
+              toggleActions: "play none none reverse"
             }
           }
         );
@@ -320,12 +324,10 @@ export default function ChordWrightProject() {
         <div className="ProjectHeroCopy">
           <h1 className="SiteTitle">chordwright</h1>
           <p className="ProjectLead">
-            chordwright is a browser-based editor for authoring, arranging, and
-            publishing chord charts. It treats{" "}
-            <KeywordTypewriter>song metadata</KeywordTypewriter>,{" "}
-            <KeywordUnderline>section structure</KeywordUnderline>, chord placement,
-            lyrics, and layout as structured editor state instead of one formatted
-            text block.
+            chordwright is a browser-based chord-sheet editor built around{" "}
+            <KeywordTypewriter>structured harmony</KeywordTypewriter>. Musicians can
+            place chords over lyrics, mirror sections, transpose sheets, and publish
+            or fork finished charts.
           </p>
 
           <div className="ProjectActionRow">
@@ -337,7 +339,7 @@ export default function ChordWrightProject() {
                 navigateWithViewTransition(
                   navigate,
                   "/home",
-                  getOppositeDirection(projectDirections["/ChordWrightProject"])
+                  getOppositeDirection(projectDirections["/chordwright"])
                 );
               }}
             >
@@ -349,7 +351,7 @@ export default function ChordWrightProject() {
               rel="noopener noreferrer"
               className="ProjectAction AnimatedTextContainer"
             >
-              <AnimatedActionLabel label="Open ChordWright" />
+              <AnimatedActionLabel label="Open chordwright" />
             </a>
           </div>
         </div>
@@ -389,26 +391,23 @@ export default function ChordWrightProject() {
 
       <section className="ProjectSection">
         <div className="SectionHeadingRow">
-          <h2 className="ProjectSectionTitle">The document model</h2>
+          <h2 className="ProjectSectionTitle">Structured harmony</h2>
         </div>
 
         <div className="ProjectOverviewGrid">
           <article className="ProjectPanel">
             <p>
-              Plain-text chord sheets carry layout in whitespace. Editing a symbol
-              can shift everything that follows it, and the same content becomes
-              difficult to reflow for another screen size. chordwright keeps the
-              musical data <KeywordWeight>separate from presentation</KeywordWeight>{" "}
-              so the chart can be edited without rewriting its visual alignment.
+              A sheet is a hierarchy of sections, lyric lines, and chord nodes.
+              Chords keep their harmonic value and canvas position as{" "}
+              <KeywordWeight>editable data</KeywordWeight>, not aligned whitespace.
             </p>
           </article>
 
           <article className="ProjectPanel">
             <p>
-              The editor still has to read like a chart while it is being assembled.
-              Key, tempo, chord style, section boundaries, chord positions, and lyrics
-              remain in the same working context, which reduces the distance between
-              an edit and its <KeywordFade>rendered consequence</KeywordFade>.
+              Editor commands operate on plain objects before Konva renders them.
+              That separation keeps drag behavior, section mirroring, transposition,
+              and <KeywordFade>persistence</KeywordFade> testable outside the canvas.
             </p>
           </article>
         </div>
@@ -416,7 +415,7 @@ export default function ChordWrightProject() {
 
       <section className="ProjectSection">
         <div className="SectionHeadingRow">
-          <h2 className="ProjectSectionTitle">Implementation boundaries</h2>
+          <h2 className="ProjectSectionTitle">System boundaries</h2>
         </div>
 
         <div className="ProjectCardGrid">
@@ -445,7 +444,7 @@ export default function ChordWrightProject() {
 
       <section className="ProjectSection">
         <div className="SectionHeadingRow">
-          <h2 className="ProjectSectionTitle">Chart lifecycle</h2>
+          <h2 className="ProjectSectionTitle">Editing workflow</h2>
         </div>
 
         <div className="BuildTimeline">
@@ -467,7 +466,7 @@ export default function ChordWrightProject() {
             navigateWithViewTransition(
               navigate,
               "/home",
-              getOppositeDirection(projectDirections["/ChordWrightProject"])
+              getOppositeDirection(projectDirections["/chordwright"])
             );
           }}
         >
