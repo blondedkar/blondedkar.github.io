@@ -29,6 +29,15 @@ function KeywordWeight({ children }: { children: ReactNode }) {
   );
 }
 
+function KeywordUnderline({ children }: { children: ReactNode }) {
+  return (
+    <span className="AccentKeyword AccentKeywordUnderline AccentKeywordInk">
+      <span className="AccentKeywordUnderlineText">{children}</span>
+      <span className="AccentKeywordUnderlineLine" aria-hidden="true" />
+    </span>
+  );
+}
+
 function KeywordTypewriter({ children }: { children: ReactNode }) {
   return (
     <span className="AccentKeyword AccentKeywordBox AccentKeywordInk">
@@ -42,8 +51,9 @@ const implementationAreas = [
     title: "SvelteKit + TypeScript",
     description: (
       <>
-        SvelteKit handles routing and server boundaries. TypeScript defines the
-        chart model shared by editor commands, persistence, and rendering.
+        <KeywordUnderline>SvelteKit</KeywordUnderline> handles routing and server
+        boundaries. <KeywordWeight>TypeScript</KeywordWeight> defines the chart model
+        shared by editor commands, persistence, and rendering.
       </>
     ),
     resourceUrl: "https://svelte.dev/docs/kit"
@@ -52,8 +62,9 @@ const implementationAreas = [
     title: "Object editor engine",
     description: (
       <>
-        Sheets contain sections, lyric lines, and positioned chord nodes. Pure
-        commands add, move, delete, transpose, mirror, fork, and publish them.
+        Sheets contain sections, lyric lines, and positioned chord nodes.{" "}
+        <KeywordTypewriter>Pure commands</KeywordTypewriter> add, move, delete,
+        transpose, mirror, fork, and publish them.
       </>
     )
   },
@@ -61,8 +72,8 @@ const implementationAreas = [
     title: "Konva canvas",
     description: (
       <>
-        Konva and svelte-konva provide the editor canvas for direct chord-node
-        placement without coupling document operations to the renderer.
+        <KeywordFade>Konva and svelte-konva</KeywordFade> provide the editor canvas
+        for direct chord-node placement without coupling document operations to it.
       </>
     )
   },
@@ -70,8 +81,9 @@ const implementationAreas = [
     title: "Supabase + Drizzle",
     description: (
       <>
-        Supabase supplies authentication, Postgres, and storage. Drizzle owns the
-        schema and server-side data access for charts, profiles, and social data.
+        <KeywordUnderline>Supabase</KeywordUnderline> supplies authentication,
+        Postgres, and storage. <KeywordWeight>Drizzle</KeywordWeight> owns the schema
+        and server-side data access.
       </>
     )
   }
@@ -82,7 +94,8 @@ const workflowSteps = [
     title: "Compose",
     description: (
       <>
-        Create sections, paste lyric lines, then place chord nodes by click or drag.
+        Create sections, paste lyric lines, then{" "}
+        <KeywordUnderline>place chord nodes</KeywordUnderline> by click or drag.
       </>
     )
   },
@@ -90,7 +103,8 @@ const workflowSteps = [
     title: "Revise",
     description: (
       <>
-        Move chords, transpose the sheet, and mirror repeated sections from one source.
+        Move chords, <KeywordTypewriter>transpose</KeywordTypewriter> the sheet, and
+        mirror repeated sections from one source.
       </>
     )
   },
@@ -98,8 +112,8 @@ const workflowSteps = [
     title: "Save and share",
     description: (
       <>
-        Cache drafts in IndexedDB, sync private cloud drafts by revision, then publish
-        or fork a chart when it is ready.
+        Cache drafts in <KeywordFade>IndexedDB</KeywordFade>, sync private cloud drafts
+        by revision, then <KeywordWeight>publish or fork</KeywordWeight> the chart.
       </>
     )
   }
@@ -108,9 +122,14 @@ const workflowSteps = [
 const heroTechColumns = {
   left: [
     { label: "SvelteKit", logo: "/Svelte.svg" },
-    { label: "HTML", logo: "/HTML.png" }
+    { label: "SCSS", logo: "/SCSS.svg" },
+    { label: "PostgreSQL", logo: "/PostgreSQL.svg" }
   ],
-  right: [{ label: "CSS", logo: "/CSS.png" }]
+  right: [
+    { label: "TypeScript", logo: "/TypeScript.png" },
+    { label: "Supabase", logo: "/Supabase.svg" },
+    { label: "Drizzle", logo: "/Drizzle.svg" }
+  ],
 };
 
 function AnimatedActionLabel({ label }: { label: string }) {
@@ -246,72 +265,53 @@ export default function ChordwrightProject() {
         y: 36
       });
 
-      gsap.set(".TechBadgeCard", {
-        opacity: 0,
-        y: 42,
-        rotate: gsap.utils.wrap([-5, 4, -3])
-      });
-
-      const heroTimeline = gsap.timeline({ delay: 0.12 });
+      const heroTimeline = gsap.timeline({ defaults: { ease: "power3.out" } });
 
       heroTimeline.to(".ProjectHeroCopy > *", {
         opacity: 1,
         y: 0,
-        duration: 0.72,
-        ease: "power3.out",
-        stagger: 0.09
+        duration: 0.8,
+        stagger: 0.12
       });
 
-      heroTimeline.to(
-        ".TechBadgeCard",
-        {
-          opacity: 1,
-          y: 0,
-          rotate: 0,
-          duration: 0.75,
-          ease: "power3.out",
-          stagger: 0.08
-        },
-        0.12
-      );
-
-      gsap.utils.toArray<HTMLElement>(".ProjectSection").forEach((section) => {
-        gsap.fromTo(
-          section,
-          { autoAlpha: 0, y: 96, rotateX: 8 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            rotateX: 0,
-            duration: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 82%",
-              toggleActions: "play none none reverse"
-            }
+      gsap.utils.toArray<HTMLElement>(".ProjectSection").forEach((section, index, sections) => {
+        if (index === sections.length - 1) return;
+        gsap.to(section, {
+          y: -10,
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true
           }
-        );
+        });
+      });
 
-        const panels = section.querySelectorAll(".ProjectPanel");
-        if (!panels.length) return;
+      gsap.set(".AccentKeywordFade", { opacity: 0.25, filter: "blur(4px)" });
+      gsap.set(".AccentKeywordWeight", { fontWeight: 400, letterSpacing: "0.12em" });
+      gsap.set(".AccentKeywordUnderlineLine", { scaleX: 0, transformOrigin: "left center" });
+      gsap.set(".AccentKeywordBoxInner", { clipPath: "inset(0 100% 0 0)", opacity: 0.35 });
 
-        gsap.fromTo(
-          panels,
-          { autoAlpha: 0, y: 54 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.8,
-            stagger: 0.12,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 76%",
-              toggleActions: "play none none reverse"
-            }
-          }
-        );
+      gsap.utils.toArray<HTMLElement>(".ProjectSection, .ProjectHeroCopy").forEach((scope) => {
+        const trigger = { trigger: scope, start: "top 85%", end: "bottom 75%", scrub: true };
+        const fadeKeywords = scope.querySelectorAll<HTMLElement>(".AccentKeywordFade");
+        const weightKeywords = scope.querySelectorAll<HTMLElement>(".AccentKeywordWeight");
+        const underlineKeywords = scope.querySelectorAll<HTMLElement>(".AccentKeywordUnderlineLine");
+        const boxKeywords = scope.querySelectorAll<HTMLElement>(".AccentKeywordBoxInner");
+
+        if (fadeKeywords.length) {
+          gsap.to(fadeKeywords, { opacity: 1, filter: "blur(0px)", stagger: 0.18, ease: "none", scrollTrigger: trigger });
+        }
+        if (weightKeywords.length) {
+          gsap.to(weightKeywords, { fontWeight: 800, letterSpacing: "0.02em", stagger: 0.2, ease: "none", scrollTrigger: trigger });
+        }
+        if (underlineKeywords.length) {
+          gsap.to(underlineKeywords, { scaleX: 1, stagger: 0.22, ease: "none", scrollTrigger: trigger });
+        }
+        if (boxKeywords.length) {
+          gsap.to(boxKeywords, { clipPath: "inset(0 0% 0 0)", opacity: 1, stagger: 0.24, ease: "none", scrollTrigger: trigger });
+        }
       });
     }, pageRef);
 
@@ -324,10 +324,11 @@ export default function ChordwrightProject() {
         <div className="ProjectHeroCopy">
           <h1 className="SiteTitle">chordwright</h1>
           <p className="ProjectLead">
-            chordwright is a browser-based chord-sheet editor built around{" "}
-            <KeywordTypewriter>structured harmony</KeywordTypewriter>. Musicians can
-            place chords over lyrics, mirror sections, transpose sheets, and publish
-            or fork finished charts.
+            chordwright is a <KeywordFade>browser-based</KeywordFade> chord-sheet
+            editor built around <KeywordTypewriter>structured harmony</KeywordTypewriter>.
+            Musicians can <KeywordUnderline>place chords over lyrics</KeywordUnderline>,
+            mirror sections, transpose sheets, and <KeywordWeight>publish or fork</KeywordWeight>{" "}
+            finished charts.
           </p>
 
           <div className="ProjectActionRow">
@@ -398,7 +399,8 @@ export default function ChordwrightProject() {
           <article className="ProjectPanel">
             <p>
               A sheet is a hierarchy of sections, lyric lines, and chord nodes.
-              Chords keep their harmonic value and canvas position as{" "}
+              Chords keep their harmonic value and{" "}
+              <KeywordUnderline>canvas position</KeywordUnderline> as{" "}
               <KeywordWeight>editable data</KeywordWeight>, not aligned whitespace.
             </p>
           </article>
@@ -406,8 +408,9 @@ export default function ChordwrightProject() {
           <article className="ProjectPanel">
             <p>
               Editor commands operate on plain objects before Konva renders them.
-              That separation keeps drag behavior, section mirroring, transposition,
-              and <KeywordFade>persistence</KeywordFade> testable outside the canvas.
+              That separation keeps <KeywordTypewriter>drag behavior</KeywordTypewriter>,
+              section mirroring, transposition, and <KeywordFade>persistence</KeywordFade>{" "}
+              testable outside the canvas.
             </p>
           </article>
         </div>

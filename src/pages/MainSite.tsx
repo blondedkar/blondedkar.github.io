@@ -36,7 +36,12 @@ const projectCards = [
     title: "chordwright",
     path: "/chordwright",
     tech: [
-      { label: "SvelteKit", src: "/Svelte.svg" }
+      { label: "SvelteKit", src: "/Svelte.svg" },
+      { label: "TypeScript", src: "/TypeScript.png" },
+      { label: "SCSS", src: "/SCSS.svg" },
+      { label: "Supabase", src: "/Supabase.svg" },
+      { label: "PostgreSQL", src: "/PostgreSQL.svg" },
+      { label: "Drizzle", src: "/Drizzle.svg" }
     ]
   }
 ] as const;
