@@ -6,6 +6,7 @@ import SiteProject from "./pages/SiteProject";
 import RastProject from "./pages/RastProject";
 import SkubalProject from "./pages/SkubalProject";
 import ChordwrightProject from "./pages/ChordWrightProject";
+import MappingProject from "./pages/MappingProject";
 import FogBackground from "./components/FogBackground";
 import GlobalChrome from "./components/GlobalChrome";
 import "./transitions.css";
@@ -32,6 +33,7 @@ export default function App() {
             <Route path="/RastProject" element={<RastProject />} />
             <Route path="/SkubalProject" element={<SkubalProject />} />
             <Route path="/chordwright" element={<ChordwrightProject />} />
+            <Route path="/MappingProject" element={<MappingProject />} />
           </Routes>
         </div>
       </div>

@@ -1,665 +1,286 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import "../substyle.css";
-import {
-  consumePendingScrollTarget,
-  getOppositeDirection,
-  navigateWithViewTransition,
-  projectDirections,
-  resetPageScroll
-} from "../utils/viewTransitions";
+import ProjectGuide, {
+  GuideInk as Ink,
+  GuideCodeSample,
+  GuideSection,
+} from "../components/ProjectGuide";
 
-gsap.registerPlugin(ScrollTrigger);
+const createCanvasCode = [
+  "-- Supply these references from the host application.",
+  "local RoffinityCanvas = require(canvasModule)",
+  "",
+  "local Canvas = RoffinityCanvas.new({",
+  "    Parent = parent,",
+  "    Width = 512,",
+  "    Height = 512,",
+  "    CanvasColour = Color3.new(1, 1, 1),",
+  "    Blur = false,",
+  "})",
+  "",
+  "assert(Canvas.EditableImage ~= nil, \"Image output is unavailable\")",
+  "Canvas.AutoRender = false",
+  "",
+  "-- Storage resolution is separate from the displayed frame.",
+  "assert(Canvas.CurrentResX == 1024 and Canvas.CurrentResY == 1024)"
+].join("\n");
 
-function AnimatedActionLabel({ label }: { label: string }) {
-  return (
-    <>
-      <span className="hidden" aria-hidden="true">
-        {label}
-      </span>
+const writePixelsCode = [
+  "-- Coordinates are one-based; RGBA channels use the range 0..1.",
+  "Canvas:FillRGBA(1, 1, 1, 1)",
+  "Canvas:SetRGBA(128, 128, 1, 0, 0, 1)",
+  "",
+  "Canvas:DrawRect(",
+  "    240, 64, 128, 96,",
+  "    Color3.new(0.2, 0.55, 0.8),",
+  "    1",
+  ")",
+  "",
+  "-- Present the complete batch once.",
+  "Canvas:Render()"
+].join("\n");
 
-      <span className="top" aria-hidden="true">
-        {[...label].map((letter, i) => (
-          <span
-            key={`top-${label}-${i}`}
-            className="topLetter"
-            style={{ transitionDelay: `${i * 0.02}s` }}
-          >
-            {letter === " " ? "\u00A0" : letter}
-          </span>
-        ))}
-      </span>
+const coordinatesCode = [
+  "local function ToCanvasPoint(screenPosition: Vector2): Vector2?",
+  "    local point = Canvas:ViewportToCanvasPoint(screenPosition)",
+  "",
+  "    if point.X < 1 or point.Y < 1",
+  "        or point.X > Canvas.CurrentResX",
+  "        or point.Y > Canvas.CurrentResY then",
+  "        return nil",
+  "    end",
+  "",
+  "    return point",
+  "end"
+].join("\n");
 
-      <span className="bottom" aria-hidden="true">
-        {[...label].map((letter, i) => (
-          <span
-            key={`bottom-${label}-${i}`}
-            className="bottomLetter"
-            style={{ transitionDelay: `${i * 0.02}s` }}
-          >
-            {letter === " " ? "\u00A0" : letter}
-          </span>
-        ))}
-      </span>
-    </>
-  );
-}
+const strokeCode = [
+  "local active = false",
+  "local previousPoint: Vector2? = nil",
+  "local ink = Color3.new(0.1, 0.3, 0.4)",
+  "",
+  "local function StampPoint(point: Vector2)",
+  "    Canvas:SetRGBA(point.X, point.Y, ink.R, ink.G, ink.B, 1)",
+  "end",
+  "",
+  "local function BeginStroke(screenPosition: Vector2)",
+  "    active = false",
+  "    previousPoint = ToCanvasPoint(screenPosition)",
+  "    if not previousPoint then return end",
+  "",
+  "    active = true",
+  "    StampPoint(previousPoint)",
+  "end",
+  "",
+  "local function MoveStroke(screenPosition: Vector2)",
+  "    if not active then return end",
+  "    local point = ToCanvasPoint(screenPosition)",
+  "    if not point then",
+  "        previousPoint = nil",
+  "        return",
+  "    end",
+  "",
+  "    if previousPoint then",
+  "        Canvas:DrawLine(previousPoint, point, ink, 3)",
+  "    else",
+  "        StampPoint(point)",
+  "    end",
+  "    previousPoint = point",
+  "end",
+  "",
+  "local function EndStroke()",
+  "    active = false",
+  "    previousPoint = nil",
+  "end"
+].join("\n");
 
-function SplitPromptLabel({ label }: { label: string }) {
-  return (
-    <span className="ResourcePrompt" aria-hidden="true">
-      {[...label].map((letter, index) => (
-        <span
-          key={`${label}-${index}`}
-          className="ResourcePromptChar"
-          style={{ transitionDelay: `${index * 0.025}s` }}
-        >
-          {letter === " " ? "\u00A0" : letter}
-        </span>
-      ))}
-    </span>
-  );
-}
+const renderCode = [
+  "-- Only dirty buffers are presented by the automatic update.",
+  "Canvas.AutoRenderFpsLimit = 30",
+  "Canvas.AutoRender = true",
+  "",
+  "-- Resize changes the frame, not the stored pixel grid.",
+  "Canvas:Resize(768, 768)",
+  "assert(Canvas.CurrentResX == 1024 and Canvas.CurrentResY == 1024)"
+].join("\n");
 
-const heroTechColumns = {
-  left: [{ label: "Luau", logo: "/Luau.svg" }],
-  right: [{ label: "Lua", logo: "/Lua.svg" }]
-};
+const historyCode = [
+  "local x, y, width, height = 32, 32, 64, 64",
+  "local before = Canvas:GetBuffer(x, y, width, height)",
+  "",
+  "Canvas:DrawRect(x, y, width, height, Color3.new(0, 0.5, 1), 1)",
+  "local after = Canvas:GetBuffer(x, y, width, height)",
+  "",
+  "local function UndoPatch()",
+  "    Canvas:SetBuffer(before, x, y, width, height)",
+  "end",
+  "",
+  "local function RedoPatch()",
+  "    Canvas:SetBuffer(after, x, y, width, height)",
+  "end"
+].join("\n");
 
-const typeReferenceLinks: Record<string, string> = {
-  canvas:
-    "https://github.com/Ethanthegrand/CanvasDraw/blob/main/src/FastCanvas.luau",
-  color3:
-    "https://create.roblox.com/docs/reference/engine/datatypes/Color3",
-  editableimage:
-    "https://create.roblox.com/docs/reference/engine/classes/EditableImage",
-  vector2:
-    "https://create.roblox.com/docs/reference/engine/datatypes/Vector2"
-};
+const verifyCode = [
+  "local expectedBytes = Canvas.CurrentResX * Canvas.CurrentResY * 4",
+  "assert(buffer.len(Canvas.Buffer) == expectedBytes)",
+  "",
+  "Canvas:SetRGBA(128, 128, 1, 0, 0, 1)",
+  "local r, g, b, a = Canvas:GetRGBA(128, 128)",
+  "assert(r == 1 and g == 0 and b == 0 and a == 1)",
+  "",
+  "Canvas:Render()"
+].join("\n");
 
-function renderLinkedSignature(signature: string) {
-  return signature.split(/(\b[A-Za-z][A-Za-z0-9]*\??\b)/g).map((part, index) => {
-    const normalized = part.replace(/\?$/, "").toLowerCase();
-    const href = typeReferenceLinks[normalized];
+const cleanupCode = [
+  "local function DisposeCanvas()",
+  "    EndStroke()",
+  "    -- Disconnect the host's pointer handlers before disposal.",
+  "    Canvas.AutoRender = false",
+  "    Canvas:Destroy()",
+  "end"
+].join("\n");
 
-    if (!href) {
-      return <span key={`${part}-${index}`}>{part}</span>;
-    }
-
-    return (
-      <a
-        key={`${part}-${index}`}
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="DocsTypeLink"
-      >
-        {part}
-      </a>
-    );
-  });
-}
-
-function renderLinkedText(text: string) {
-  return text.split(/(\b[A-Za-z][A-Za-z0-9]*\b)/g).map((part, index) => {
-    const href = typeReferenceLinks[part.toLowerCase()];
-
-    if (!href) {
-      return <span key={`${part}-${index}`}>{part}</span>;
-    }
-
-    return (
-      <a
-        key={`${part}-${index}`}
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="DocsTypeLink"
-      >
-        {part}
-      </a>
-    );
-  });
-}
-
-const memberGroups = [
-  {
-    title: "Related services/API",
-    items: [
-      "UserInputService",
-      "CanvasDraw",
-      "Proprietary Undo/Redo library",
-      "ProfileStore",
-    ]
-  },
-  {
-    title: "Brushes",
-    items: [
-      "Round()",
-      "Square()",
-      "Flat()",
-      "Glow()",
-      "Blend()",
-      "Smudge()",
-      "Darken()",
-      "Lighten()",
-      "Eraser()",
-      "Ignore()"
-    ]
-  },
+const sections = [
+  { id: "prerequisites", title: "Prerequisites" },
+  { id: "initial-setup", title: "Initial setup" },
+  { id: "create-canvas", title: "1. Create the canvas" },
+  { id: "write-pixels", title: "2. Write and present pixels" },
+  { id: "convert-input", title: "3. Convert pointer coordinates" },
+  { id: "draw-strokes", title: "4. Draw continuous strokes" },
+  { id: "render-updates", title: "5. Schedule display updates" },
+  { id: "region-history", title: "6. Capture reversible edits" },
+  { id: "verify-output", title: "7. Verify the output" },
+  { id: "troubleshooting", title: "Troubleshooting" },
+  { id: "next-steps", title: "Next steps" },
 ];
 
-const propertyEntries = [
-  {
-    name: "UserInputService",
-    type: "library",
-    summary: "Using events from UserInputService to drive brush strokes and user interactions.",
-    resourceUrl:
-      "https://create.roblox.com/docs/reference/engine/classes/UserInputService"
-  },
-  {
-    name: "CanvasDraw",
-    type: "library",
-    summary: "Custom wrapper that manages buffers and efficiently reduces pixel update sytanx.",
-    resourceUrl:
-      "https://github.com/Ethanthegrand/CanvasDraw/tree/main/src"
-  },
-  {
-    name: "Undo/Redo Stack",
-    type: "module",
-    summary: "Proprietary module that efficiently tracks changes relative to the current canvas, designed to be lagless, efficient and customizable."
-  },
-  {
-    name: "ProfileStore",
-    type: "library",
-    summary: "DataStore wrapper, chosen for efficiency and data corruption safety.",
-    resourceUrl: "https://madstudioroblox.github.io/ProfileStore/"
-  }
-];
-
-const apiSections = [
-  {
-    title: "Constructor",
-    entries: [
-      {
-        name: "RoffinityCanvas.new(parent: CanvasGroup, resolution: Vector2?, canvasColour: Color3?, blur: boolean?)",
-        signatures: [
-          "RoffinityCanvas.new(parent: Instance, resolution: number | vector2?, canvasColour: color3?, blur: boolean?): canvas"
-        ],
-        summary: "Creates a canvas object within a given parent, of a given resolution no greater than 1024x1024. Optional canvas background color, and blur to indicate default roblox anti-aliasing (not suggested)."
-      }
-    ]
-  },
-  {
-    title: "Canvas Properties",
-    entries: [
-      {
-        name: "Prefix: self, or Canvas",
-        items: [
-          "Frame, Container, ImageLabel, EditableImage",
-          "Buffer",
-          "AutoRender",
-          "AutoRenderFpsLimit",
-          "NeedsRender",
-          "CanvasColour",
-          "ClearAlpha",
-          "Resolution, CurrentResX, CurrentResY",
-          "Width, Height",
-          "OnRendered"
-        ],
-        summary: "Accessible properties pertaining to the canvas."
-      }
-    ]
-  },
-  {
-    title: "Pixel Read / Write API",
-    entries: [
-      { name: "SetPixel",signatures: ["Canvas:SetPixel(point: vector2, color: color3, alpha: number?): ()"], summary: "Internally writes a pixel to the buffer. Not suggested for work, this is an internal method but can be utilized."},
-      { name: "SetRGB", signatures: ["Canvas:SetRGB(x: number, y: number, r: number, g: number, b: number): ()"], summary: "Writes pixel data with color values. Not suggested unless working explicitly without alpha." },
-      { name: "SetRGBA", signatures: ["Canvas:SetRGBA(x: number, y: number, r: number, g: number, b: number, a: number?): ()"], summary: "Writes pixel data data with color value and alpha. This is the optimal pixel writing method." },
-      { name: "SetAlpha", signatures: ["Canvas:SetAlpha(x: number, y: number, alpha: number): ()"], summary: "Sets the alpha value for a pixel, can overwrite existing alpha, and pixels." },
-      { name: "SetU32", signatures: ["Canvas:SetU32(x: number, y: number, colourU32: number): ()"], summary: "Writes a 32-bit color value to the buffer, not suggested for work, this is an internal method." },
-      { name: "GetPixel", signatures: ["Canvas:GetPixel(point: vector2): color3, number"], summary: "Reads and returns a pixel's RGBA and Alpha value. Not suggested for work." },
-      { name: "GetRGB", signatures: ["Canvas:GetRGB(x: number, y: number): number, number, number"], summary: "Reads and returns a pixel's RGB values" },
-      { name: "GetRGBA", signatures: ["Canvas:GetRGBA(x: number, y: number): number, number, number, number"], summary: "Reads and returns a pixel's RGBA values" },
-      { name: "GetAlpha", signatures: ["Canvas:GetAlpha(x: number, y: number): number"], summary: "Reads and returns a pixel's alpha value" },
-      { name: "GetU32", signatures: ["Canvas:GetU32(x: number, y: number): number"], summary: "Reads and returns a pixel's 32-bit color value" }
-    ]
-  },
-  {
-    title: "Buffer API",
-    entries: [
-      {
-        name: "SetBuffer",
-        signatures: ["Canvas:SetBuffer(pixelBuffer: buffer, x: number?, y: number?, bufferWidth: number?, bufferHeight: number?): ()"]
-      },
-      {
-        name: "GetBuffer",
-        signatures: ["Canvas:GetBuffer(x: number?, y: number?, width: number?, height: number?): buffer"]
-      },
-      {
-        name: "Format",
-        items: [
-          "RGBA bytes",
-          "4 bytes per pixel",
-          "Offset formula: ((y - 1) * width + (x - 1)) * 4"
-        ]
-      }
-    ]
-  },
-  {
-    title: "Fill / Clear",
-    entries: [
-      { name: "Fill", signatures: ["Canvas:Fill(color: color3, alpha: number?): ()"] },
-      { name: "FillRGBA", signatures: ["Canvas:FillRGBA(r: number, g: number, b: number, a: number?): ()"] },
-      { name: "Clear", signatures: ["Canvas:Clear(): ()"] },
-      { name: "SetClearRGBA", signatures: ["Canvas:SetClearRGBA(r: number, g: number, b: number, a: number): ()"] }
-    ]
-  },
-  {
-    title: "Drawing",
-    entries: [
-      { name: "DrawLine", signatures: ["Canvas:DrawLine(pointA: vector2, pointB: vector2, color: color3, thickness: number?, roundedCaps: boolean?): ()"] },
-      { name: "DrawRectangle", signatures: ["Canvas:DrawRectangle(pointA: vector2, pointB: vector2, color: color3, alpha: number?, fill: boolean?): ()"] },
-      { name: "DrawRect", signatures: ["Canvas:DrawRect(x: number, y: number, width: number, height: number, color: color3, alpha: number?): ()"] },
-      {
-        name: "Current limitations",
-        items: [
-          "roundedCaps is accepted but not fully implemented",
-          "Line thickness is square-stamped rather than anti-aliased"
-        ]
-      }
-    ]
-  },
-  {
-    title: "Sizing",
-    entries: [
-      { name: "Resize", signatures: ["Canvas:Resize(newResolutionOrWidth: number | vector2, height: number?): ()"], items: ["Changes displayed frame size"] },
-      { name: "SetResolution", signatures: ["Canvas:SetResolution(newResolutionOrWidth: number | vector2, height: number?): ()"], items: ["Changes internal buffer resolution", "Recreates the buffer and EditableImage"] }
-    ]
-  },
-  {
-    title: "Rendering",
-    entries: [
-      { name: "Render", signatures: ["Canvas:Render(): ()"] },
-      { name: "AutoRender", items: ["Canvas.AutoRender"] },
-      { name: "AutoRenderFpsLimit", items: ["Canvas.AutoRenderFpsLimit"] },
-      { name: "NeedsRender", items: ["Canvas.NeedsRender"] },
-      { name: "OnRendered", items: ["Canvas.OnRendered"] },
-      { name: "SetBlur", signatures: ["Canvas:SetBlur(enabled: boolean): ()"] },
-      { name: "SetStretchToFit", signatures: ["Canvas:SetStretchToFit(enabled: boolean): ()"] }
-    ]
-  },
-  {
-    title: "Input Helpers",
-    entries: [
-      { name: "ViewportToCanvasPoint", signatures: ["Canvas:ViewportToCanvasPoint(screenPosition: vector2): vector2"] },
-      { name: "GetMousePoint", signatures: ["Canvas:GetMousePoint(): vector2"] },
-      { name: "MouseIsOnTop", signatures: ["Canvas:MouseIsOnTop(): boolean"] }
-    ]
-  },
-  {
-    title: "Color Utilities",
-    entries: [
-      { name: "GetColourU32", signatures: ["RoffinityCanvas.GetColourU32(r: number, g: number, b: number, a: number?): number", "Canvas:GetColourU32(r: number, g: number, b: number, a: number?): number"] },
-      { name: "GetRGBAFromColourU32", signatures: ["RoffinityCanvas.GetRGBAFromColourU32(colourU32: number): number, number, number, number", "Canvas:GetRGBAFromColourU32(colourU32: number): number, number, number, number"] },
-      { name: "GetRGBFromColourU32", signatures: ["RoffinityCanvas.GetRGBFromColourU32(colourU32: number): number, number, number", "Canvas:GetRGBFromColourU32(colourU32: number): number, number, number"] }
-    ]
-  },
-  {
-    title: "Lifecycle",
-    entries: [
-      {
-        name: "Destroy",
-        signatures: ["Canvas:Destroy(): ()"],
-        items: [
-          "Disconnects the heartbeat connection",
-          "Cleans up the events folder",
-          "Destroys the GUI frame",
-          "Clears EditableImage and buffer references"
-        ]
-      }
-    ]
-  },
-  {
-    title: "Performance Notes",
-    entries: [
-      {
-        name: "Guidelines",
-        items: [
-          "Prefer bulk buffer operations for large changes",
-          "Batch writes when possible",
-          "AutoRenderFpsLimit can prevent excessive rendering",
-          "Avoid reading or writing huge regions per frame unless using a preview strategy"
-        ]
-      }
-    ]
-  },
-  {
-    title: "Examples",
-    entries: [
-      { name: "Create canvas", signatures: ["local Canvas = RoffinityCanvas.new({ Parent = script.Parent, Width = 512, Height = 512 })"] },
-      { name: "Draw pixel / line / rectangle", signatures: ["Canvas:SetPixel(Vector2.new(12, 20), Color3.new(1, 0, 0), 1)", "Canvas:DrawLine(Vector2.new(1, 1), Vector2.new(128, 64), Color3.new(1, 1, 1), 3)", "Canvas:DrawRect(24, 24, 80, 40, Color3.new(0, 0, 0), 1)"] },
-      { name: "Read and modify a region", signatures: ["local Region = Canvas:GetBuffer(1, 1, 64, 64)", "Canvas:SetBuffer(Region, 96, 96, 64, 64)"] },
-      { name: "Convert mouse position to canvas pixel", signatures: ["local Point = Canvas:GetMousePoint()", "local PointFromViewport = Canvas:ViewportToCanvasPoint(UserInputService:GetMouseLocation())"] },
-      { name: "Resize display vs change resolution", signatures: ["Canvas:Resize(768, 768)", "Canvas:SetResolution(512, 512)"] },
-      { name: "Manual render loop", signatures: ["Canvas.AutoRender = false", "Canvas:SetPixel(1, 1, Color3.new(1, 1, 1), 1)", "Canvas:Render()"] }
-    ]
-  }
-] as const;
+const combinedCode = [
+  createCanvasCode, writePixelsCode, coordinatesCode, strokeCode,
+  renderCode, historyCode, verifyCode, cleanupCode,
+].join("\n\n");
+const downloadUrl = "data:text/plain;charset=utf-8," + encodeURIComponent(combinedCode);
 
 export default function RastProject() {
-  const pageRef = useRef<HTMLElement>(null);
-  const navigate = useNavigate();
-
-  useLayoutEffect(() => {
-    const pendingTarget = consumePendingScrollTarget();
-    const target: number | HTMLElement =
-      !pendingTarget || pendingTarget === "project-hero"
-        ? 0
-        : (document.getElementById(pendingTarget) ?? 0);
-
-    const alignToTarget = () => {
-      resetPageScroll(target);
-    };
-
-    alignToTarget();
-
-    const rafId = requestAnimationFrame(() => {
-      ScrollTrigger.refresh();
-      alignToTarget();
-    });
-
-    const timeoutId = window.setTimeout(() => {
-      ScrollTrigger.refresh();
-      alignToTarget();
-    }, 120);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.clearTimeout(timeoutId);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!pageRef.current) return;
-
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".TechColumnLeft",
-        { yPercent: 0 },
-        {
-          yPercent: -12,
-          ease: "none",
-          scrollTrigger: {
-            trigger: pageRef.current,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true
-          }
-        }
-      );
-
-      gsap.fromTo(
-        ".TechColumnRight",
-        { yPercent: 0 },
-        {
-          yPercent: 12,
-          ease: "none",
-          scrollTrigger: {
-            trigger: pageRef.current,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true
-          }
-        }
-      );
-
-      gsap.set(".DocsReferenceHero > *", {
-        opacity: 0,
-        y: 32
-      });
-
-      const heroTimeline = gsap.timeline({
-        defaults: { ease: "power3.out" }
-      });
-
-      heroTimeline.to(".DocsReferenceHero > *", {
-        opacity: 1,
-        y: 0,
-        duration: 0.7,
-        stagger: 0.08
-      });
-    }, pageRef);
-
-    return () => ctx.revert();
-  }, []);
-
   return (
-    <main ref={pageRef} className="ProjectPage DocsProjectPage DocsReferencePage">
-      <section id="project-hero" className="DocsReferenceHero DocsReferenceHeroWithVisual ProjectHero">
-        <div className="ProjectHeroCopy">
-          <h1 className="SiteTitle">Rasterizer</h1>
-          <p className="ProjectLead">
-            Photoshop style emulator built completely CPU bound (by constraint, not idea). Project is completely written in Luau with the brush techniques being mathematically compatible in other programs.
-          </p>
+    <ProjectGuide
+      title={<>CPU raster<br /><span>canvas.</span></>}
+      lead="Create a CPU pixel canvas with continuous strokes, controlled rendering, and reversible edits."
+      projectPath="/RastProject"
+      sections={sections}
+      articleLabel="CPU raster canvas setup guide"
+    >
+      <GuideSection id="prerequisites" title="Prerequisites">
+        <p>A Luau runtime with buffers, editable image output, a visible UI container,
+          and the RoffinityCanvas modules.</p>
+      </GuideSection>
 
-          <div className="ProjectActionRow">
-            <Link
-              to="/home"
-              className="ProjectAction AnimatedTextContainer"
-              onClick={(event) => {
-                event.preventDefault();
-                navigateWithViewTransition(
-                  navigate,
-                  "/home",
-                  getOppositeDirection(projectDirections["/RastProject"])
-                );
-              }}
-            >
-              <AnimatedActionLabel label="Back to Projects" />
-            </Link>
-          </div>
+      <GuideSection id="initial-setup" title="Initial setup">
+        <p>Provide <code>canvasModule</code> and <code>parent</code>. Append the samples in order,
+          then bind the stroke callbacks to your input system.</p>
+        <p>Drawing changes the buffer; rendering presents it.</p>
+        <div className="MapGuideNote">
+          <strong>Pixel convention</strong>
+          <p>Pixels start at <code>(1, 1)</code>: X rightward, Y downward.
+            Each uses four bytes in RGBA order.</p>
         </div>
+      </GuideSection>
 
-        <div className="ProjectHeroVisual RasterHeroVisual" aria-hidden="true">
-          <div className="TechColumn TechColumnLeft">
-            {heroTechColumns.left.map((item) => (
-              <article key={item.label} className="TechBadgeCard">
-                <div className="TechBadgeMark">{item.label}</div>
-                <div className="TechLogoPlaceholder">
-                  <img
-                    src={item.logo}
-                    alt={`${item.label} logo`}
-                    className="TechLogoImage"
-                  />
-                </div>
-              </article>
-            ))}
-          </div>
+      <GuideSection id="create-canvas" title="1. Create the canvas">
+        <p>Create the canvas and disable automatic rendering during initialization.</p>
+        <GuideCodeSample title="Initialize the canvas" language="Luau" code={createCanvasCode} />
+        <p><code>Width</code> and <code>Height</code> control the display.
+          The buffer stays <Ink>1024 × 1024</Ink>, using 4 MiB for RGBA storage.</p>
+      </GuideSection>
 
-          <div className="TechColumn TechColumnRight">
-            {heroTechColumns.right.map((item) => (
-              <article key={item.label} className="TechBadgeCard">
-                <div className="TechBadgeMark">{item.label}</div>
-                <div className="TechLogoPlaceholder">
-                  <img
-                    src={item.logo}
-                    alt={`${item.label} logo`}
-                    className="TechLogoImage"
-                  />
-                </div>
-              </article>
-            ))}
-          </div>
+      <GuideSection id="write-pixels" title="2. Write and present pixels">
+        <p>Fill the buffer, add a test pixel and rectangle, then call <code>Render</code> once.</p>
+        <GuideCodeSample title="Write a test pattern" language="Luau" code={writePixelsCode} />
+        <p><code>SetRGBA</code> uses 0–1 channels; the buffer stores 0–255.
+          Calculate offsets using the internal width:</p>
+        <div className="MapGuideEquation" aria-label="RGBA buffer byte offset">
+          <code>offset = ((y − 1) × resolutionX + (x − 1)) × 4</code>
         </div>
-      </section>
+        <p>RGBA occupies offsets 0 through 3. Successive pixels are four bytes apart.</p>
+      </GuideSection>
 
-      <div className="DocsMain">
-          <section id="rast-summary" className="DocsReferenceSection">
-            <div className="SectionHeadingRow">
-              <h2 className="ProjectSectionTitle">Summary</h2>
-            </div>
+      <GuideSection id="convert-input" title="3. Convert pointer coordinates">
+        <p>Convert viewport positions with <code>ViewportToCanvasPoint</code>,
+          then reject pixels outside the canvas.</p>
+        <GuideCodeSample title="Convert and reject out-of-bounds input" language="Luau" code={coordinatesCode} />
+        <p>The helper already adjusts for the UI inset. Do not subtract it twice.</p>
+      </GuideSection>
 
-            <article className="ProjectPanel">
-              <p>
-                {renderLinkedText(
-                  "Utilize CanvasDraw's API to render pixels onto an EditableImage to emulate rasterized drawing. Incorporates various brush algorithms, multiple layers, saving/loading efficient flood fills, color picking, color blending, far beyond the average drawing program on the platform."
-                )}{" "}
-                <strong>
-                  Efficiently map pixels to user inputted positions, provide a perfectly smooth, and detailed experience.
-                </strong>
-              </p>
-            </article>
-          </section>
+      <GuideSection id="draw-strokes" title="4. Draw continuous strokes">
+        <p>Join consecutive input samples with <Ink>line rasterization</Ink>.
+          Reset the previous point when the pointer leaves the canvas.</p>
+        <GuideCodeSample title="Stroke lifecycle callbacks" language="Luau" code={strokeCode} />
+        <p>Bind <code>BeginStroke</code> to press, <code>MoveStroke</code> to movement,
+          and <code>EndStroke</code> to release or cancellation—even outside the canvas.</p>
+        <div className="MapGuideNote">
+          <strong>Stroke shape</strong>
+          <p>Lines use square stamps. Rounded caps and anti-aliasing are not implemented.</p>
+        </div>
+      </GuideSection>
 
-          <section id="rast-members" className="DocsReferenceSection">
-            <div className="SectionHeadingRow">
-              <h2 className="ProjectSectionTitle">Members Index</h2>
-            </div>
+      <GuideSection id="render-updates" title="5. Schedule display updates">
+        <p>Automatic rendering presents dirty buffers, capped by <code>AutoRenderFpsLimit</code>.</p>
+        <GuideCodeSample title="Control presentation and resizing" language="Luau" code={renderCode} />
+        <p>Batch writes and <Ink>render once per update</Ink>.
+          Resizing changes the display, not the pixel grid.</p>
+        <p>Each render uploads the full buffer; region edits do not reduce upload size.</p>
+      </GuideSection>
 
-            <div className="ProjectCardGrid DocsReferenceIndex">
-              {memberGroups.map((group) => (
-                <article key={group.title} className="ProjectPanel DocsReferenceParagraphCard">
-                  <h3>{group.title}</h3>
-                  <div className="DocsReferenceParagraphs">
-                    {group.items.map((item) => (
-                      <p key={item}>{item}</p>
-                    ))}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
+      <GuideSection id="region-history" title="6. Capture reversible edits">
+        <p>Capture the affected region before and after an edit.
+          A 64 × 64 RGBA snapshot uses 16 KiB.</p>
+        <GuideCodeSample title="Save and restore a region" language="Luau" code={historyCode} />
+        <p>Store each pair in the history stack. Capture once per stroke, limit memory,
+          and clear the redo branch after a new edit.</p>
+      </GuideSection>
 
-          <section id="rast-properties" className="DocsReferenceSection">
-            <div className="SectionHeadingRow">
-              <h2 className="ProjectSectionTitle">Services</h2>
-            </div>
+      <GuideSection id="verify-output" title="7. Verify the output">
+        <p>Check buffer length and read a known pixel, then render and inspect the pattern.</p>
+        <GuideCodeSample title="Validate the buffer and a known pixel" language="Luau" code={verifyCode} />
+        <div className="MapGuideTableWrap" tabIndex={0} aria-label="Raster canvas verification checks" data-lenis-prevent>
+          <table>
+            <caption>Expected behavior</caption>
+            <thead><tr><th scope="col">Check</th><th scope="col">Expected result</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Internal storage</th><td>1024 × 1024 × 4 bytes</td></tr>
+              <tr><th scope="row">Pixel at (128, 128)</th><td>RGBA (1, 0, 0, 1)</td></tr>
+              <tr><th scope="row">Display resized to 768 × 768</th><td>Internal resolution stays 1024 × 1024</td></tr>
+              <tr><th scope="row">Region restored</th><td>Pixels return to the captured snapshot</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Test strokes after resizing, then call <code>UndoPatch</code> and <code>RedoPatch</code>.
+          Only the captured region should change.</p>
+      </GuideSection>
 
-            <div className="DocsReferenceEntries">
-              {propertyEntries.map((entry) =>
-                entry.resourceUrl ? (
-                  <a
-                    key={entry.name}
-                    href={entry.resourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ProjectPanel DocsReferenceTable ResourceCard"
-                  >
-                    <div className="DocsReferenceEntryHeader">
-                      <h3>{entry.name}</h3>
-                      <span className="DocsReferenceType">{entry.type}</span>
-                    </div>
-                    <p>{entry.summary}</p>
-                    <SplitPromptLabel label="View Resource" />
-                  </a>
-                ) : (
-                  <article key={entry.name} className="ProjectPanel DocsReferenceTable">
-                    <div className="DocsReferenceEntryHeader">
-                      <h3>{entry.name}</h3>
-                      <span className="DocsReferenceType">{entry.type}</span>
-                    </div>
-                    <p>{entry.summary}</p>
-                  </article>
-                )
-              )}
-            </div>
-          </section>
+      <GuideSection id="troubleshooting" title="Troubleshooting">
+        <div className="MapGuideTroubleshooting">
+          <div><h3>Blank display</h3>
+            <p>Check image creation, parent visibility, and rendering. Pixel reads only verify storage.</p></div>
+          <div><h3>Offset stroke</h3>
+            <p>Use viewport coordinates and apply the inset adjustment once.</p></div>
+          <div><h3>Broken or joined strokes</h3>
+            <p>Connect samples, reset on exit, and handle release or cancellation globally.</p></div>
+          <div><h3>Unexpected alpha behavior</h3>
+            <p>Pixel writes replace RGBA. Source-over blending requires reading, blending, and writing the result.</p></div>
+        </div>
+      </GuideSection>
 
-          <section id="rast-methods" className="DocsReferenceSection">
-            <div className="SectionHeadingRow">
-              <h2 className="ProjectSectionTitle">API Documentation</h2>
-            </div>
-
-            <div className="ApiDocsAccordion">
-              {apiSections.map((section) => (
-                <details key={section.title} className="ProjectPanel ApiDocsSection">
-                  <summary className="ApiDocsSummary">
-                    <span>{section.title}</span>
-                  </summary>
-
-                  <div className="ApiDocsBody">
-                    {section.entries.map((entry) => (
-                      <article key={entry.name} className="ApiDocsEntry">
-                        <h3>{entry.name}</h3>
-
-                        {"summary" in entry && entry.summary ? (
-                          <p className="ApiDocsEntrySummary">{entry.summary}</p>
-                        ) : null}
-
-                        {"signatures" in entry && entry.signatures ? (
-                          <div className="ApiDocsSignatures">
-                            {entry.signatures.map((signature) => (
-                              <code key={signature} className="DocsReferenceSignature ApiDocsSignature">
-                                {renderLinkedSignature(signature)}
-                              </code>
-                            ))}
-                          </div>
-                        ) : null}
-
-                        {"items" in entry && entry.items ? (
-                          <div className="DocsReferenceParagraphs ApiDocsParagraphs">
-                            {entry.items.map((item) => (
-                              <p key={item}>{item}</p>
-                            ))}
-                          </div>
-                        ) : null}
-                      </article>
-                    ))}
-                  </div>
-                </details>
-              ))}
-            </div>
-          </section>
-
-          <section id="rast-changelog" className="DocsReferenceSection">
-            <div className="SectionHeadingRow">
-              <h2 className="ProjectSectionTitle">Revision history</h2>
-            </div>
-
-            <article className="ProjectPanel DocsReferenceTable">
-              <div className="DocsReferenceRow">
-                <div className="DocsReferenceKey">v0.1</div>
-                <div className="DocsReferenceValue">
-                  Initial release.
-                </div>
-              </div>
-              <div className="DocsReferenceRow">
-                <div className="DocsReferenceKey">v0.2</div>
-                <div className="DocsReferenceValue">
-                  Fixed a critical memory leak pertaining to user input.
-                </div>
-              </div>
-
-              <div className="DocsReferenceRow">
-                <div className="DocsReferenceKey">v1.0</div>
-                <div className="DocsReferenceValue">
-                  Began Roffinity.
-                </div>
-              </div>
-            </article>
-          </section>
-
-          <section className="ProjectFooterAction">
-            <Link
-              to="/home"
-              className="ProjectAction AnimatedTextContainer"
-              onClick={(event) => {
-                event.preventDefault();
-                navigateWithViewTransition(
-                  navigate,
-                  "/home",
-                  getOppositeDirection(projectDirections["/RastProject"])
-                );
-              }}
-            >
-              <AnimatedActionLabel label="Back to Projects" />
-            </Link>
-          </section>
-      </div>
-    </main>
+      <GuideSection id="next-steps" title="Next steps">
+        <p>Extend with circular brushes, layers, or persistence.
+          Keep image operations separate from rendering.</p>
+        <p>Disconnect input handlers before <code>Destroy</code>,
+          which stops internal updates and removes the display.</p>
+        <GuideCodeSample title="Release the canvas" language="Luau" code={cleanupCode} />
+        <div className="ProjectPanel MapGuideDownloads">
+          <h3>Download the code samples</h3>
+          <p>Supply the host references, bind stroke callbacks,
+            and call <code>DisposeCanvas</code> when done.</p>
+          <div><a href={downloadUrl} download="canvas-setup.luau">canvas-setup.luau ↓</a></div>
+        </div>
+      </GuideSection>
+    </ProjectGuide>
   );
 }

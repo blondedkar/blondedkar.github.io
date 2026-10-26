@@ -43,6 +43,13 @@ const projectCards = [
       { label: "PostgreSQL", src: "/PostgreSQL.svg" },
       { label: "Drizzle", src: "/Drizzle.svg" }
     ]
+  },
+  {
+    title: "Affine coordinate mapping",
+    path: "/MappingProject",
+    tech: [
+      { label: "TypeScript", src: "/TypeScript.png" }
+    ]
   }
 ] as const;
 

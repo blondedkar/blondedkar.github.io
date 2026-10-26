@@ -25,7 +25,8 @@ export const projectDirections: Record<string, string> = {
   "/SiteProject": "down",
   "/RastProject": "right",
   "/SkubalProject": "left",
-  "/chordwright": "up"
+  "/chordwright": "up",
+  "/MappingProject": "down"
 };
 
 function getLenis() {

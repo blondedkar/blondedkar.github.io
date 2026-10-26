@@ -743,7 +743,14 @@ nav .MenuButton {
 }
 
 .ProjectFolder:nth-child(1) { grid-column: span 2; }
-.ProjectFolder[data-project="chordwright"] { grid-column: span 3; }
+.ProjectFolder[data-project="chordwright"] { grid-column: span 2; }
+
+.ProjectFolder[data-project="Affine coordinate mapping"] .ProjectImage {
+  background:
+    repeating-radial-gradient(ellipse at 70% 30%, transparent 0 22px, rgba(49, 86, 90, 0.5) 23px 24px, transparent 25px 38px),
+    linear-gradient(135deg, rgba(135, 165, 168, 0.4), rgba(255, 255, 255, 0.2));
+  background-size: 120% 130%, auto;
+}
 
 .ProjectImage {
   position: absolute;
